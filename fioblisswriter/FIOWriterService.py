@@ -33,7 +33,7 @@ class FIOWriterService:
 
     def __init__(self, redis_url, session, next_scan_timeout,
                  skip_final_parameters=False, max_string_parameter_size=300,
-                 snapshot_filters=None):
+                 snapshot_blacklist=None):
         """ constructor
 
         :param redis_url: blissdata redis url
@@ -46,8 +46,8 @@ class FIOWriterService:
         :type skip_final_parameters: :obj:`bool`
         :param max_string_parameter_size: maximal string parameter size
         :type max_string_parameter_size: :obj:`int`
-        :param snapshotfilters: snapshot filter
-        :type snapshotfilters: :obj:`list` <:obj:`str`>
+        :param snapshotblacklist: snapshot blacklist
+        :type snapshotblacklist: :obj:`list` <:obj:`str`>
 
         """
         #: (:obj:`bool`) service running flag
@@ -56,7 +56,7 @@ class FIOWriterService:
         self.__next_scan_timeout = next_scan_timeout
         self.__skip_final_parameters = skip_final_parameters
         self.__max_string_parameter_size = max_string_parameter_size
-        self.__snapshot_filters = snapshot_filters
+        self.__snapshot_blacklist = snapshot_blacklist
 
         #: (:obj:`str`) session name
         self.__session = session
@@ -105,7 +105,7 @@ class FIOWriterService:
             scan,
             self.__skip_final_parameters,
             self.__max_string_parameter_size,
-            self.__snapshot_filters)
+            self.__snapshot_blacklist)
 
         if fiofl is None:
             return
