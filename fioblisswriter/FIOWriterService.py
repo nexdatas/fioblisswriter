@@ -31,7 +31,9 @@ from .FIOFile import create_fio_file
 
 class FIOWriterService:
 
-    def __init__(self, redis_url, session, next_scan_timeout):
+    def __init__(self, redis_url, session, next_scan_timeout,
+                 skip_final_parameters=False, max_string_parameter_size=300,
+                 snapshot_filters=None):
         """ constructor
 
         :param redis_url: blissdata redis url
@@ -40,11 +42,22 @@ class FIOWriterService:
         :type session: :obj:`str`
         :param next_scan_timeout: timeout  between the scans in seconds
         :type next_scan_timeout: :obj:`int`
+        :param skip_final_parameters: skip final parameters
+        :type skip_final_parameters: :obj:`bool`
+        :param max_string_parameter_size: maximal string parameter size
+        :type max_string_parameter_size: :obj:`int`
+        :param snapshotfilters: snapshot filter
+        :type snapshotfilters: :obj:`list` <:obj:`str`>
+
         """
         #: (:obj:`bool`) service running flag
         self.__running = False
         #: (:obj:`int`) scan timeout in seconds
         self.__next_scan_timeout = next_scan_timeout
+        self.__skip_final_parameters = skip_final_parameters
+        self.__max_string_parameter_size = max_string_parameter_size
+        self.__snapshot_filters = snapshot_filters
+
         #: (:obj:`str`) session name
         self.__session = session
         #: (:class:`blissdata.redis_engine.store.DataStore`) datastore
@@ -88,7 +101,12 @@ class FIOWriterService:
             scan.update()
         print("SCAN", scan.number)
 
-        fiofl = create_fio_file(scan)
+        fiofl = create_fio_file(
+            scan,
+            self.__skip_final_parameters,
+            self.__max_string_parameter_size,
+            self.__snapshot_filters)
+
         if fiofl is None:
             return
 
