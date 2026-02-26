@@ -43,6 +43,15 @@ class FIOBlissWriter(Device):
         NextScanTimeout
             - timeout for next scan writing
             - Type:'int'
+        SkipFinalParameters
+            - do not store parameters with the FINAL  strategy
+            - Type:'bool'
+        MaxStringParameterSize
+            - maximal  value size of string parameters
+            - Type:'int'
+        SnapshotFilters
+            - a list of snapshot keys for skip
+            - Type:'DevVarStringArray'
     """
 
     # -----------------
@@ -65,6 +74,22 @@ class FIOBlissWriter(Device):
         default_value=2,
         doc="timeout for next scan writing"
     )
+    SkipFinalParameters = device_property(
+        dtype='bool',
+        default_value=False,
+        doc="do not store parameters with the FINAL strategy"
+    )
+
+    MaxStringParameterSize = device_property(
+        dtype='int',
+        default_value=300,
+        doc="maximal value size of string parameters"
+    )
+
+    SnapshotFilters = device_property(
+        dtype='DevVarStringArray',
+        doc="a list of snapshot keys for skip"
+    )
 
     # ---------------
     # General methods
@@ -75,7 +100,10 @@ class FIOBlissWriter(Device):
         Device.init_device(self)
         self.info_stream("Initializing device...")
         self.fio_writer_service = NWS(
-            self.RedisUrl, self.Session, self.NextScanTimeout)
+            self.RedisUrl, self.Session, self.NextScanTimeout,
+            self.SkipFinalParameters, self.MaxStringParameterSize,
+            self.SnapshotFilters
+        )
         self.Start()
 
     def dev_status(self):

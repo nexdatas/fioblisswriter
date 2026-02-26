@@ -33,30 +33,11 @@ from blissdata.redis_engine.exceptions import EndOfStream
 
 ALLOWED_FIO_SURFIXES = {".fio"}
 
-try:
-    _npver = np.version.version.split(".")
-    NPMAJOR = int(_npver[0])
-except Exception:
-    NPMAJOR = 1
 
-
-ATTRDESC = {
-    "nexus_type": "type",
-    "unit": "units",
-    "depends_on": "depends_on",
-    "trans_type": "transformation_type",
-    "trans_vector": "vector",
-    "trans_offset": "offset",
-    "source": "nexdatas_source",
-    "strategy": "nexdatas_strategy",
-}
-
-MAX_STRING_PARAMETER_LENGTH = 300
-
-NOATTRS = {"name", "label", "dtype", "value", "nexus_path", "shape", "stream"}
-
-
-def create_fio_file(scan):
+def create_fio_file(
+        scan,
+        skip_final_parameters=False, max_string_parameter_size=300,
+        snapshot_filters=None):
     """ open fio file
 
     :param scan: blissdata scan
@@ -72,7 +53,10 @@ def create_fio_file(scan):
     if not fdir.is_dir():
         fdir.mkdir(parents=True)
 
-    fiofl = FIOFile(scan, fpath)
+    fiofl = FIOFile(scan, fpath,
+                    skip_final_parameters,
+                    max_string_parameter_size,
+                    snapshot_filters)
     # ?? append mode
     if not fpath.exists():
         fiofl.create_file_structure()
@@ -81,7 +65,10 @@ def create_fio_file(scan):
 
 class FIOFile:
 
-    def __init__(self, scan, fpath, max_write_interval=1):
+    def __init__(
+            self, scan, fpath,
+            skip_final_parameters=False, max_string_parameter_size=300,
+            snapshot_filters=None, max_write_interval=1):
         """ constructor
 
         :param scan: blissdata scan
@@ -93,6 +80,9 @@ class FIOFile:
         """
         self.__scan = scan
         self.__fpath = fpath
+        self.__skip_final_parameters = skip_final_parameters
+        self.__max_string_parameter_size = max_string_parameter_size
+        self.__snapshot_filters = snapshot_filters
         self.__max_write_interval = max_write_interval
 
         self.__last_write_time = 0
@@ -173,7 +163,7 @@ class FIOFile:
                         if dtype in ["string", "str"] and "\n" in str(value):
                             value = value.replace("\n", "\\n")
                             value = '"%s"' % value
-                            if len(value) > MAX_STRING_PARAMETER_LENGTH:
+                            if len(value) > self.__max_string_parameter_size:
                                 continue
                         self.__mfile.write("%s = %s\n" % (str(ds), str(value)))
                     except Exception as e:
@@ -413,38 +403,42 @@ class FIOFile:
         """ write final data
         """
         si = self.__scan.info
-        self.__mfile.write("!\n! Parameter\n!\n%p\n")
-        self.__mfile.flush()
-
         snapshot = {}
         if "snapshot" in si:
             snapshot = si["snapshot"]
 
-        for ds, items in snapshot.items():
-            if not isinstance(items, list):
-                items = [items]
-            for item in items:
-                strategy = None
-                if "strategy" in item:
-                    strategy = item["strategy"]
-                if strategy in ["FINAL"]:
-                    try:
-                        value = item["value"]
+        if not self.__skip_final_parameters:
+            self.__mfile.write("!\n! Parameter\n!\n%p\n")
+            self.__mfile.flush()
+
+            for ds, items in snapshot.items():
+                if not isinstance(items, list):
+                    items = [items]
+                for item in items:
+                    strategy = None
+                    if "strategy" in item:
+                        strategy = item["strategy"]
+                    if strategy in ["FINAL"]:
                         try:
-                            dtype = item["dtype"]
-                        except Exception:
-                            dtype = ""
-                        if dtype in ["string", "str"] and "\n" in str(value):
-                            value = '"%s"' % value
-                            if len(value) > MAX_STRING_PARAMETER_LENGTH:
-                                continue
-                        self.__mfile.write("%s = %s\n" % (str(ds), str(value)))
-                    except Exception as e:
-                        print("Error: ", ds, strategy, item, str(e))
-                        break
-            else:
-                continue
-            break
+                            value = item["value"]
+                            try:
+                                dtype = item["dtype"]
+                            except Exception:
+                                dtype = ""
+                            if dtype in ["string", "str"] and \
+                                    "\n" in str(value):
+                                value = '"%s"' % value
+                                if len(value) > \
+                                        self.__max_string_parameter_size:
+                                    continue
+                            self.__mfile.write("%s = %s\n" % (str(ds),
+                                                              str(value)))
+                        except Exception as e:
+                            print("Error: ", ds, strategy, item, str(e))
+                            break
+                else:
+                    continue
+                break
         try:
             end_time = snapshot["end_time"]
         except Exception:
