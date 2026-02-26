@@ -1,0 +1,52 @@
+name: Test Package
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 1 * * 1'
+
+jobs:
+
+  flake8_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install flake8
+        run: pip install flake8
+      - name: Run flake8
+        run: flake8 .
+
+  # python3_tests:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       os: [debian13, debian12tg10, debian12, debian11, ubuntu25.10, ubuntu24.04, ubuntu22.04]
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-python@v2
+  #     - name: Update bash files
+  #       run: |
+  #         chmod +x .ci/run.sh
+  #         chmod +x .ci/install.sh
+  #     - name: Build the docker
+  #       env:
+  #         OSYS: ${{ matrix.os }}
+  #       run: docker build -t ndts .ci/${OSYS}_py3
+  #     - name: Run the docker
+  #       run: docker run  --name  ndts -d -it -v `pwd`:/home/tango  ndts
+  #     - name: install tango and nxsconfigserver
+  #       env:
+  #         OSYS: ${{ matrix.os }}
+  #       run: .ci/install.sh ${OSYS} 3
+  #     - name: run tests
+  #       env:
+  #         OSYS: ${{ matrix.os }}
+  #       run: .ci/run.sh ${OSYS} 3
+  #     - name: Stop the docker
+  #       run: |
+  #            docker exec  --user root ndts  /bin/bash -c "chown -R 1001 /home/tango "
+  #            docker container stop ndts
