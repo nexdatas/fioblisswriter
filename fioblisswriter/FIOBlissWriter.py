@@ -49,7 +49,7 @@ class FIOBlissWriter(Device):
         MaxStringParameterSize
             - maximal  value size of string parameters
             - Type:'int'
-        SnapshotFilters
+        SnapshotBlacklist
             - a list of snapshot keys for skip
             - Type:'DevVarStringArray'
     """
@@ -86,7 +86,7 @@ class FIOBlissWriter(Device):
         doc="maximal value size of string parameters"
     )
 
-    SnapshotFilters = device_property(
+    SnapshotBlacklist = device_property(
         dtype='DevVarStringArray',
         doc="a list of snapshot keys for skip"
     )
@@ -102,7 +102,7 @@ class FIOBlissWriter(Device):
         self.fio_writer_service = NWS(
             self.RedisUrl, self.Session, self.NextScanTimeout,
             self.SkipFinalParameters, self.MaxStringParameterSize,
-            self.SnapshotFilters
+            self.SnapshotBlacklist
         )
         self.Start()
 

@@ -23,6 +23,7 @@ import functools
 import time
 import pathlib
 import os
+import fnmatch
 import numpy as np
 
 # from blissdata.redis_engine.store import DataStore
@@ -37,7 +38,7 @@ ALLOWED_FIO_SURFIXES = {".fio"}
 def create_fio_file(
         scan,
         skip_final_parameters=False, max_string_parameter_size=300,
-        snapshot_filters=None):
+        snapshot_blacklist=None):
     """ open fio file
 
     :param scan: blissdata scan
@@ -56,7 +57,7 @@ def create_fio_file(
     fiofl = FIOFile(scan, fpath,
                     skip_final_parameters,
                     max_string_parameter_size,
-                    snapshot_filters)
+                    snapshot_blacklist)
     # ?? append mode
     if not fpath.exists():
         fiofl.create_file_structure()
@@ -68,7 +69,7 @@ class FIOFile:
     def __init__(
             self, scan, fpath,
             skip_final_parameters=False, max_string_parameter_size=300,
-            snapshot_filters=None, max_write_interval=1):
+            snapshot_blacklist=None, max_write_interval=1):
         """ constructor
 
         :param scan: blissdata scan
@@ -82,7 +83,7 @@ class FIOFile:
         self.__fpath = fpath
         self.__skip_final_parameters = skip_final_parameters
         self.__max_string_parameter_size = max_string_parameter_size
-        self.__snapshot_filters = snapshot_filters
+        self.__snapshot_blacklist = snapshot_blacklist or []
         self.__max_write_interval = max_write_interval
 
         self.__last_write_time = 0
@@ -107,6 +108,17 @@ class FIOFile:
     def labels(self):
         labels = (ch["label"] for ch in self.channels)
         return tuple(label.replace(" ", "_") for label in labels)
+
+    def snapshot_keys(self):
+        si = self.__scan.info
+        snapshot = {}
+        if "snapshot" in si:
+            snapshot = si["snapshot"]
+        names = [nm for nm in snapshot.keys()]
+        bllist = []
+        for flt in self.__snapshot_blacklist:
+            bllist.extend(fnmatch.filter(names, flt))
+        return tuple(set(names) - set(bllist))
 
     def create_file_structure(self):
         """ create nexus structure
@@ -138,40 +150,35 @@ class FIOFile:
     def write_init_snapshot(self):
         """ write inits data
         """
-        si = self.__scan.info
         self.__mfile.write("!\n! Parameter\n!\n%p\n")
         self.__mfile.flush()
 
+        si = self.__scan.info
         snapshot = {}
         if "snapshot" in si:
             snapshot = si["snapshot"]
 
-        for ds, items in snapshot.items():
-            if not isinstance(items, list):
-                items = [items]
-            for item in items:
-                strategy = None
-                if "strategy" in item:
-                    strategy = item["strategy"]
-                if not strategy or strategy in ["INIT"]:
+        for ds in self.snapshot_keys():
+            item = snapshot[ds]
+            strategy = None
+            if "strategy" in item:
+                strategy = item["strategy"]
+            if not strategy or strategy in ["INIT"]:
+                try:
+                    value = item["value"]
                     try:
-                        value = item["value"]
-                        try:
-                            dtype = item["dtype"]
-                        except Exception:
-                            dtype = ""
-                        if dtype in ["string", "str"] and "\n" in str(value):
-                            value = value.replace("\n", "\\n")
-                            value = '"%s"' % value
-                            if len(value) > self.__max_string_parameter_size:
-                                continue
-                        self.__mfile.write("%s = %s\n" % (str(ds), str(value)))
-                    except Exception as e:
-                        print("Error: ", ds, strategy, item, str(e))
-                        break
-            else:
-                continue
-            break
+                        dtype = item["dtype"]
+                    except Exception:
+                        dtype = ""
+                    if dtype in ["string", "str"] and "\n" in str(value):
+                        value = value.replace("\n", "\\n")
+                        value = '"%s"' % value
+                        if len(value) > self.__max_string_parameter_size:
+                            continue
+                    self.__mfile.write("%s = %s\n" % (str(ds), str(value)))
+                except Exception as e:
+                    print("Error: ", ds, strategy, item, str(e))
+                    break
 
     def prepareChannels(self):
         """ prepare cursors
@@ -411,34 +418,30 @@ class FIOFile:
             self.__mfile.write("!\n! Parameter\n!\n%p\n")
             self.__mfile.flush()
 
-            for ds, items in snapshot.items():
-                if not isinstance(items, list):
-                    items = [items]
-                for item in items:
-                    strategy = None
-                    if "strategy" in item:
-                        strategy = item["strategy"]
-                    if strategy in ["FINAL"]:
+            for ds in self.snapshot_keys():
+                item = snapshot[ds]
+                strategy = None
+                if "strategy" in item:
+                    strategy = item["strategy"]
+
+                if strategy in ["FINAL"]:
+                    try:
+                        value = item["value"]
                         try:
-                            value = item["value"]
-                            try:
-                                dtype = item["dtype"]
-                            except Exception:
-                                dtype = ""
-                            if dtype in ["string", "str"] and \
-                                    "\n" in str(value):
-                                value = '"%s"' % value
-                                if len(value) > \
-                                        self.__max_string_parameter_size:
-                                    continue
-                            self.__mfile.write("%s = %s\n" % (str(ds),
-                                                              str(value)))
-                        except Exception as e:
-                            print("Error: ", ds, strategy, item, str(e))
-                            break
-                else:
-                    continue
-                break
+                            dtype = item["dtype"]
+                        except Exception:
+                            dtype = ""
+                        if dtype in ["string", "str"] and \
+                                "\n" in str(value):
+                            value = '"%s"' % value
+                            if len(value) > \
+                                    self.__max_string_parameter_size:
+                                continue
+                        self.__mfile.write("%s = %s\n" % (str(ds),
+                                                          str(value)))
+                    except Exception as e:
+                        print("Error: ", ds, strategy, item, str(e))
+                        break
         try:
             end_time = snapshot["end_time"]
         except Exception:

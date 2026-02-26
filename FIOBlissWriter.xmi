@@ -29,7 +29,7 @@
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
       <DefaultPropValue>300</DefaultPropValue>
     </deviceProperties>
-    <deviceProperties name="SnapshotFilters" description="a list of snapshot keys for skip">
+    <deviceProperties name="SnapshotBlacklist" description="a list of snapshot keys for skip">
       <type xsi:type="pogoDsl:StringVectorType"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
     </deviceProperties>
