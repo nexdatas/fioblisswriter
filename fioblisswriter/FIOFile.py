@@ -22,11 +22,8 @@
 import functools
 import time
 import pathlib
-import xml.etree.ElementTree as et
-from lxml.etree import XMLParser
-from lxml import etree
+import os
 import numpy as np
-import json
 
 # from blissdata.redis_engine.store import DataStore
 # from blissdata.redis_engine.scan import ScanState
@@ -43,27 +40,6 @@ except Exception:
     NPMAJOR = 1
 
 
-PTH = {
-    "long": h5cpp.datatype.Integer,
-    "str": h5cpp.datatype.kVariableString,
-    "unicode": h5cpp.datatype.kVariableString,
-    "bool": h5cpp.datatype.kEBool,
-    "int": h5cpp.datatype.kInt64,
-    "int64": h5cpp.datatype.kInt64,
-    "int32": h5cpp.datatype.kInt32,
-    "int16": h5cpp.datatype.kInt16,
-    "int8": h5cpp.datatype.kInt8,
-    "uint": h5cpp.datatype.kInt64,
-    "uint64": h5cpp.datatype.kUInt64,
-    "uint32": h5cpp.datatype.kUInt32,
-    "uint16": h5cpp.datatype.kUInt16,
-    "uint8": h5cpp.datatype.kUInt8,
-    "float": h5cpp.datatype.kFloat32,
-    "float64": h5cpp.datatype.kFloat64,
-    "float32": h5cpp.datatype.kFloat32,
-    "string": h5cpp.datatype.kVariableString,
-}
-
 ATTRDESC = {
     "nexus_type": "type",
     "unit": "units",
@@ -75,257 +51,13 @@ ATTRDESC = {
     "strategy": "nexdatas_strategy",
 }
 
+MAX_STRING_PARAMETER_LENGTH = 300
 
 NOATTRS = {"name", "label", "dtype", "value", "nexus_path", "shape", "stream"}
 
 
-def create_field(grp, name, dtype, value=None, shape=None, chunk=None):
-    """ create field
-
-    :param n: group name
-    :type n: :obj:`str`
-    :param type_code: nexus field type
-    :type type_code: :obj:`str`
-    :param shape: shape
-    :type shape: :obj:`list` < :obj:`int` >
-    :param chunk: chunk
-    :type chunk: :obj:`list` < :obj:`int` >
-    :param dfilter: filter deflater
-    :type dfilter: :class:`H5CppDataFilter`
-    :returns: file tree field
-    :rtype: :class:`H5CppField`
-    """
-    # print("CREATE", name, dtype, value, shape, chunk)
-    dcpl = h5cpp.property.DatasetCreationList()
-    if shape is None and hasattr(value, "shape"):
-        shape = value.shape
-    elif dtype in ["str", "unicode", "string"]:
-        dataspace = h5cpp.dataspace.Scalar()
-        field = h5cpp.node.Dataset(
-            grp, h5cpp.Path(name), PTH[dtype], dataspace,
-            dcpl=dcpl)
-        if value is not None:
-            field.write(value)
-        return field
-    shape = shape or [1]
-    dataspace = h5cpp.dataspace.Simple(
-        tuple(shape), tuple([h5cpp.dataspace.UNLIMITED] * len(shape)))
-    if chunk is None:
-        chunk = [(dm if dm != 0 else 1) for dm in shape]
-    dcpl.layout = h5cpp.property.DatasetLayout.CHUNKED
-    dcpl.chunk = tuple(chunk)
-    field = h5cpp.node.Dataset(
-        grp, h5cpp.Path(name), PTH[dtype], dataspace, dcpl=dcpl)
-    if value is not None:
-        field.write(value)
-    return field
-
-
-def create_groupfield(root, lnxpath, dtype,
-                      value=None, shape=None, chunk=None):
-    """ create field
-
-    :param root: root object
-    :type root: :class:`nxgroup`
-    :param lnxpath: nexus path list
-    :type lnxpath: :obj:`list` <:obj:`str`>
-    :param dtype: nexus field type
-    :type dtype: :obj:`str`
-    :param value: field value
-    :type value: :obj:`any`
-    :param shape: shape
-    :type shape: :obj:`list` < :obj:`int` >
-    :param chunk: chunk
-    :type chunk: :obj:`list` < :obj:`int` >
-    :returns: nexus field
-    :rtype: :class:`nxfield`
-    """
-    grp = root
-    for gr in lnxpath[:-1]:
-        gn = gr
-        gt = None
-        if ":" in gr:
-            gn, gt = gr.split(":")
-
-        if grp.has_group(gn):
-            grp = grp.get_group(gn)
-        else:
-            grp = h5cpp.node.Group(grp, gn)
-            if gt is not None:
-                grp.attributes.create(
-                    "NX_class",
-                    h5cpp.datatype.kVariableString).write(gt)
-        # print(gn)
-    name = lnxpath[-1]
-    if isinstance(value, list):
-        value = np.array(value, dtype=dtype)
-    # print("CREATE %s (%s)" % (nxpath, dtype))
-    dataset = create_field(grp, name, dtype, value, shape, chunk)
-    return dataset
-
-
-def first(array):
-    """  get first element if the only
-
-    :param array: numpy array
-    :type array: :class:`numpy.ndarray`
-    :returns: first element of the array
-    :type array: :obj:`any`
-    """
-    try:
-        if isinstance(array, np.ndarray) and len(array) == 1:
-            return array[0]
-    except Exception:
-        try:
-            if hasattr(array, "all"):
-                if NPMAJOR < 2:
-                    array = array.all()
-                if hasattr(array, "decode"):
-                    return array.decode()
-        except Exception:
-            pass
-    return array
-
-
-def write_attr(am, name, dtype, value, item=None):
-    """ write attribute
-    """
-
-    try:
-        at = am[name]
-        # print("TYPE",name, value, at.dataspace.type)
-    except Exception:
-        at = None
-    if at is None:
-        try:
-            vshape = None
-            if isinstance(value, list):
-                vshape = np.array(value).shape
-            elif hasattr(value, "shape"):
-                vshape = value.shape
-            if not vshape:
-                at = am.create(name, PTH[str(dtype)])
-            else:
-                at = am.create(name, PTH[str(dtype)], vshape)
-        except Exception as e:
-            print("CREATE ATT", name, dtype, PTH[dtype])
-            print("WWAA", name, name, dtype, value, type(value), item)
-            print(str(e))
-    try:
-        if at is not None:
-            try:
-                try:
-                    rvalue = at.read()
-                except Exception:
-                    rvalue = None
-                ashape = None
-                vshape = None
-                if isinstance(value, list):
-                    vshape = np.array(value).shape
-                elif hasattr(value, "shape"):
-                    vshape = value.shape
-                if at.dataspace.type == h5cpp.dataspace.Type.SCALAR:
-                    rvalue = first(rvalue)
-                else:
-                    ashape = at.dataspace.current_dimensions
-                if str(rvalue) != str(value):
-                    if ashape != vshape:
-                        am.remove(name)
-                        at = am.create(name, PTH[str(dtype)], vshape)
-                    at.write(value)
-                    # print("WRITE", am, name, dtype, value,
-                    #       type(value), rvalue)
-                    # print("DIFF", name, str(value), str(rvalue))
-                else:
-                    pass
-                    # print("THE SAME", name, value)
-            except Exception as e:
-                print("ERROR", str(e), am, name, dtype, value, item)
-                # print("at", at.read(), dir(at))
-                shape = None
-                if hasattr(at.dataspace, "current_dimensions"):
-                    shape = at.dataspace.current_dimensions
-                if shape:
-                    if not isinstance(value, list) and \
-                            not hasattr(value, "shape"):
-                        value = json.loads(value)
-                at.write(value)
-    except Exception as e:
-        # print("READ", at.read())
-        print("ERROR2", str(e), am, name, dtype, value, item)
-        # print("WW", am, name, dtype, value, item)
-        # print(at, dir(at))
-
-
-def write_snapshot_item(root, item):
-    """ write snapshot item
-    """
-    nxpath = item.get('nexus_path', None)
-    value = item.get('value', None)
-    dtype = item.get('dtype', None)
-    if dtype == "string":
-        dtype = "str"
-    dataset = None
-    if nxpath and value is not None:
-        attr = None
-        if "@" in nxpath:
-            nxpath, attr = nxpath.split("@", 1)
-        lnxpath = nxpath.split("/")
-        h5path = "/".join([nd.split(":")[0] for nd in lnxpath])
-        try:
-            if not attr:
-                dataset = root.get_dataset(h5path)
-                if dataset.dataspace.type != \
-                        h5cpp.dataspace.Type.SCALAR:
-                    if not dataset.dataspace.size:
-                        try:
-                            dataset.extent(0, 1)
-                        except Exception:
-                            pass
-                dataset.write(value)
-            else:
-                if ":" not in lnxpath:
-                    try:
-                        adataset = root.get_dataset(h5path)
-                        am = adataset.attributes
-                    except Exception:
-                        group = root.get_group(h5path)
-                        am = group.attributes
-                else:
-                    group = root.get_group(h5path)
-                    am = group.attributes
-                write_attr(am, attr, dtype, value)
-        except Exception as e:
-            # print(nxpath, str(e))
-            if str(e).startswith("No node ["):
-                dataset = create_groupfield(
-                    root, lnxpath, dtype, value)
-            else:
-                print("ERROR", str(e), type(e))
-                raise
-    if dataset is not None:
-        attrs = set(item.keys()) - NOATTRS
-        am = dataset.attributes
-        for anm in attrs:
-            avl = item[anm]
-            if isinstance(avl, list):
-                av = avl[0]
-                while isinstance(av, list) and len(av):
-                    av = av[0]
-                dtp = str(type(av).__name__)
-            elif hasattr(avl, "dtype"):
-                dtp = str(dtype.__name__)
-            else:
-                dtp = str(type(avl).__name__)
-            nanm = ATTRDESC.get(anm, anm)
-            try:
-                write_attr(am, nanm, dtp, avl, item)
-            except Exception as e:
-                print("WRII", am, nanm, dtp, avl, item, str(e))
-
-
-def create_nexus_file(scan):
-    """ open nexus file
+def create_fio_file(scan):
+    """ open fio file
 
     :param scan: blissdata scan
     :type scan: :obj:`blissdata.redis_engine.scan.Scan`
@@ -339,18 +71,6 @@ def create_nexus_file(scan):
     fdir = fpath.parent
     if not fdir.is_dir():
         fdir.mkdir(parents=True)
-
-    number = scan.number
-    serialno = ""
-    entryname = "entry"
-    snapshot = {}
-    si = scan.info
-    if "snapshot" in si:
-        snapshot = si["snapshot"]
-        if serialno in snapshot.keys() and "value" in snapshot["serialno"]:
-            serialno = snapshot["serialno"]["value"]
-        if entryname in snapshot.keys() and "value" in snapshot["entryname"]:
-            entryname = snapshot["entryname"]["value"]
 
     fiofl = FIOFile(scan, fpath)
     # ?? append mode
@@ -373,11 +93,21 @@ class FIOFile:
         """
         self.__scan = scan
         self.__fpath = fpath
+        self.__max_write_interval = max_write_interval
+
+        self.__last_write_time = 0
+
         self.__mfile = None
         self.__cursors = {}
-        self.__nxfields = {}
-        self.__last_write_time = 0
-        self.__max_write_interval = max_write_interval
+
+        self.__mca_dir_name = ""
+        self.__mca_aliases = []
+        self.__mca_names = []
+        self.__ct_names = []
+        self.__twod_names = []
+        self.__scan_name = ""
+
+        self.__tot_point_nb = 0
 
     @functools.cached_property
     def channels(self):
@@ -392,25 +122,40 @@ class FIOFile:
         """ create nexus structure
         """
         si = self.__scan.info
-        filename = str(self.__fpath.absolute())
-        snapshot = {}
-        if "snapshot" in si:
-            snapshot = si["snapshot"]
-        xmls = None
-        self.__mfile = nexus.create_file(filename,
-                                         h5cpp.file.AccessFlags.TRUNCATE)
-        root = self.__mfile.root()
-        if xmls:
-            nexus.create_from_string(root, xmls)
+        self.__scan_name = self.__scan.name
+        afpath = self.__fpath.absolute()
+        filename = str(afpath)
+        self.__mca_dir_name = filename[:-len(afpath.suffix)]
+        self.__mfile = open(filename, "w")
+        try:
+            starttime = si['start_time']
+        except Exception:
+            starttime = time.ctime()
+        try:
+            title = si['title']
+        except Exception:
+            title = self.__scan.name
+        try:
+            user = si['user_name']
+        except Exception:
+            import getpass
+            user = getpass.getuser()
+
+        self.__mfile.write(
+            "!\n! Comments\n!\n%%c\n%s\nuser %s Acquisition started at %s\n" %
+            (title, user, starttime))
 
     def write_init_snapshot(self):
-        """ write init data
+        """ write inits data
         """
         si = self.__scan.info
-        root = self.__mfile.root()
+        self.__mfile.write("!\n! Parameter\n!\n%p\n")
+        self.__mfile.flush()
+
         snapshot = {}
         if "snapshot" in si:
             snapshot = si["snapshot"]
+
         for ds, items in snapshot.items():
             if not isinstance(items, list):
                 items = [items]
@@ -420,10 +165,17 @@ class FIOFile:
                     strategy = item["strategy"]
                 if not strategy or strategy in ["INIT"]:
                     try:
-                        # print("WRITE", ds, strategy)
-                        write_snapshot_item(
-                            root, item,
-                            "%s/%s" % (self.__default_nexus_path, ds))
+                        value = item["value"]
+                        try:
+                            dtype = item["dtype"]
+                        except Exception:
+                            dtype = ""
+                        if dtype in ["string", "str"] and "\n" in str(value):
+                            value = value.replace("\n", "\\n")
+                            value = '"%s"' % value
+                            if len(value) > MAX_STRING_PARAMETER_LENGTH:
+                                continue
+                        self.__mfile.write("%s = %s\n" % (str(ds), str(value)))
                     except Exception as e:
                         print("Error: ", ds, strategy, item, str(e))
                         break
@@ -434,40 +186,60 @@ class FIOFile:
     def prepareChannels(self):
         """ prepare cursors
         """
+
+        self.__tot_point_nb = 0
+
+        self.__mca_aliases = []
+        self.__mca_names = []
+        self.__ct_names = []
+        self.__twod_names = []
+
+        self.__mfile.write("!\n! Data\n!\n%d\n")
+        self.__mfile.flush()
         self.__cursors = {}
-        self.__nxfields = {}
         #         for key, stream in self.__scan.streams.items():
         # -           self.__cursors[key] = stream.cursor()
+        i = 1
         for ch in self.channels:
             key = ch["label"]
             # print("CH", key, list(self.__scan.streams.keys()))
             if key in list(self.__scan.streams.keys()):
                 stream = self.__scan.streams[key]
                 self.__cursors[key] = stream.cursor()
-                shape = [0] + list(stream.shape)
-                chunk = [1] + list(stream.shape)
-                nxpath = ch.get(
-                    'nexus_path',
-                    "%s/%s" % (self.__default_nexus_path, key))
+
+                shape = list(stream.shape)
+
                 dtype = str(stream.dtype)
                 if hasattr(dtype, "__name__"):
                     dtype = str(dtype.__name__)
                 if dtype == "string":
                     dtype = "str"
-                lnxpath = nxpath.split("/")
-                h5path = "/".join([nd.split(":")[0] for nd in lnxpath])
-                root = self.__mfile.root()
-                try:
-                    self.__nxfields[key] = root.get_dataset(h5path)
-                except Exception as e:
-                    if str(e).startswith("No node ["):
-                        # print("S", key, shape, chunk, stream.dtype, ch)
-                        self.__nxfields[key] = create_groupfield(
-                            root, lnxpath, dtype, value=None,
-                            shape=shape, chunk=chunk)
-                    else:
-                        print("ERROR", str(e), type(e))
-                        raise
+                if dtype == 'float64':
+                    dtype = 'DOUBLE'
+
+                if len(shape) == 2:
+                    self.__twod_names.append(key)
+                elif len(shape) == 1 and shape[0] != 1:
+                    self.__mca_names.append(key)
+                    self.__mca_aliases.append(key)
+                elif len(shape) == 0 or (len(shape) == 1 and shape[0] == 1):
+                    self.__ct_names.append(key)
+
+                if key == 'point_nb':
+                    continue
+                if key == 'timestamp':
+                    continue
+                if len(shape) != 0 and (len(shape) != 1 or shape[0] != 1):
+                    continue
+                outLine = " Col %d %s %s\n" % (i, key, dtype)
+                self.__mfile.write(outLine)
+                i += 1
+
+        outLine = " Col %d %s %s\n" % (i, 'timestamp', 'DOUBLE')
+        self.__mfile.write(outLine)
+
+        self.__mfile.flush()
+        os.fsync(self.__mfile.fileno())
 
     def write_scan_points(self):
         """ write step data
@@ -475,53 +247,179 @@ class FIOFile:
         now = time.monotonic()
         if (now - self.__last_write_time) < self.__max_write_interval:
             return
+        nan = float('nan')
+        ctnames = self.__ct_names
+        mcanames = self.__mca_names
+        fd = self.__mfile
 
-        for ch in self.channels:
-            if "stream" in ch and ch["stream"] not in ["stream"]:
-                print("SKIP", ch["label"])
-                continue
+        ct_values = {}
+        mca_values = {}
+        ct_lengths = []
+
+        for ch in ctnames:
             try:
-                val = self.__cursors[ch["label"]].read()
+                val = self.__cursors[ch].read()
             except EndOfStream:
-                print("END of STREAM")
+                print("End of stream for ct column {}".format(ch))
                 return
-            try:
-                key = ch["label"]
-                values = val.get_data()
-                # print("CHANNEL", ch["label"], ch["shape"], values)
-                npoints = len(values)
-                if npoints:
-                    oldshape = \
-                        self.__nxfields[key].dataspace.current_dimensions
-                    rank = len(oldshape)
-                    if rank:
-                        offset = [0] * rank
-                        block = list(oldshape)
-                        offset[0] = oldshape[0]
-                        block[0] = npoints
-                        selection = h5cpp.dataspace.Hyperslab(
-                            offset=offset, block=block)
-                        self.__nxfields[key].extent(0, npoints)
-                        # print(self.__nxfields[key].dataspace.current_dimensions)
-                        # print(offset, block)
-                        self.__nxfields[key].write(values, selection)
-            except Exception as e:
-                print(ch)
-                print(key, values)
-                print(str(e))
-        # npoints = len(values[0])
+            val = val.get_data()
+            if isinstance(val, np.ndarray):
+                ct_values[ch] = val
+            else:
+                ct_values[ch] = [val]
+            ct_lengths.append(len(ct_values[ch]))
 
-        # for i in range(npoints):
+        try:
+            npoints = ct_lengths[0]
+        except Exception:
+            npoints = 0
+
+        for ch in mcanames:
+            try:
+                val = self.__cursors[ch].read()
+            except EndOfStream:
+                print("End of stream for mca column {}".format(ch))
+                return
+            val = val.get_data()
+            if isinstance(val, np.ndarray):
+                mca_values[ch] = val
+            else:
+                mca_values[ch] = [val]
+
+        lines = []
+
+        for i in range(npoints):
+            try:
+                timestamp = ct_values["timestamp"][i]
+            except Exception:
+                timestamp = nan
+
+            outstr = ''
+            for ch in ctnames:
+                if ch == "timestamp" or ch == "point_nb":
+                    continue
+
+                try:
+                    data = ct_values[ch][i]
+                except Exception as e:
+                    print(str(e))
+                    print("MISSING DATA for %s at %s" % (ch, i))
+                    data = nan
+                data_len = None
+                # We are sure we get the 1d even with different types
+                try:
+                    data_len = len(data)
+                    if data_len > 0:
+                        outstr += ' ' + str(data[0])
+                    else:
+                        outstr += ' ' + str(data)
+                except Exception:
+                    outstr += ' ' + str(data)
+                outstr += ' ' + str(timestamp)
+
+            lines.append(outstr)
+
+        fd.write("\n".join(lines))
+        fd.write("\n")
+        fd.flush()
+        os.fsync(self.__mfile.fileno())
+
+        if len(mcanames) > 0:
+            self.write_mca_file(mca_values, ct_values, npoints)
+
+        self.__tot_point_nb += npoints
         self.__last_write_time = now
+
+    def write_mca_file(self, mca_values, ct_values, npoints):
+        curr_dir = os.getcwd()
+        mcanames = self.__mca_names
+        nan = float('nan')
+        if not os.path.isdir(self.__mca_dir_name):
+            try:
+                os.makedirs(self.__mca_dir_name)
+            except Exception:
+                self.__mca_dir_name = None
+                return
+        os.chdir(self.__mca_dir_name)
+
+        mca_file_templ = self.__scan_name + "_mca_s%d.fio"
+
+        for i in range(npoints):
+            try:
+                timestamp = ct_values["timestamp"][i]
+            except Exception:
+                timestamp = nan
+            try:
+                point_nb = float(ct_values["point_nb"][i])
+            except Exception:
+                point_nb = i + self.__tot_point_nb
+
+            for ch in mcanames:
+
+                mca_file_name = mca_file_templ % (point_nb + 1)
+                fd = open(mca_file_name, 'w')
+
+                fd.write("!\n! Comments\n!\n%%c\n Index %d \n" % point_nb)
+                fd.write("!\n! Parameter \n%%p\n timestamp = %g \n"
+                         % timestamp)
+                fd.flush()
+
+                col = 1
+                fd.write("!\n! Data \n%d \n")
+                for mca in self.__mca_aliases:
+                    fd.write(" Col %d %s FLOAT \n" % (col, mca))
+                    col = col + 1
+
+                data = mca_values[ch][i]
+
+                if data is not None:
+                    try:
+                        lmax = len(data)
+                    except Exception as e:
+                        print("storage.py: %s, wrong data" % mcanames[0])
+                        print(repr(e))
+                        fd.close()
+                        os.chdir(curr_dir)
+                        return
+
+                    for mca in self.__mca_names:
+                        try:
+                            if len(data) > lmax:
+                                lmax = len(data)
+                        except Exception as e:
+                            print("storage.py: %s, wrong data" % mca)
+                            print(repr(e))
+                            fd.close()
+                            os.chdir(curr_dir)
+                            return
+
+                    for i in range(0, lmax):
+                        line = ""
+                        for mca in self.__mca_names:
+                            if i > (len(data) - 1):
+                                line = line + " 0"
+                            else:
+                                line = line + " " + str(data[i])
+                        line = line + "\n"
+                        fd.write(line)
+
+                    fd.close()
+                else:
+                    pass
+
+        os.chdir(curr_dir)
 
     def write_final_snapshot(self):
         """ write final data
         """
-        root = self.__mfile.root()
         si = self.__scan.info
+        self.__mfile.write("!\n! Parameter\n!\n%p\n")
+        self.__mfile.flush()
+
         snapshot = {}
         if "snapshot" in si:
             snapshot = si["snapshot"]
+
         for ds, items in snapshot.items():
             if not isinstance(items, list):
                 items = [items]
@@ -531,20 +429,30 @@ class FIOFile:
                     strategy = item["strategy"]
                 if strategy in ["FINAL"]:
                     try:
-                        # print("WRITE", ds, strategy)
-                        write_snapshot_item(
-                            root, item,
-                            "%s/%s" % (self.__default_nexus_path, ds))
+                        value = item["value"]
+                        try:
+                            dtype = item["dtype"]
+                        except Exception:
+                            dtype = ""
+                        if dtype in ["string", "str"] and "\n" in str(value):
+                            value = '"%s"' % value
+                            if len(value) > MAX_STRING_PARAMETER_LENGTH:
+                                continue
+                        self.__mfile.write("%s = %s\n" % (str(ds), str(value)))
                     except Exception as e:
                         print("Error: ", ds, strategy, item, str(e))
                         break
             else:
                 continue
             break
+        try:
+            end_time = snapshot["end_time"]
+        except Exception:
+            end_time = time.ctime()
+        self.__mfile.write("! Acquisition ended at %s\n" % end_time)
+        self.__mfile.flush()
 
     def close(self):
         """ close file
         """
-        root = self.__mfile.root()
-        root.close()
         self.__mfile.close()

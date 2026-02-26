@@ -71,7 +71,7 @@ class FIOWriterService:
         """ get writer service status
         """
         status = "is RUNNING" if self.__running else "is STOPPED"
-        return "FIOWriter %s" % status
+        return "FIOBlissWriter %s" % status
 
     def stop(self):
         """ stop writer service
@@ -99,7 +99,7 @@ class FIOWriterService:
 
         while scan.state < ScanState.STOPPED:
             scan.update(block=False)
-            print("SCAN POINT", scan.number)
+            # print("SCAN POINT", scan.number)
             fiofl.write_scan_points()
 
         while scan.state < ScanState.CLOSED:

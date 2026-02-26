@@ -34,7 +34,6 @@ def main(args=None, **kwargs):
     :type args: :obj:`list` <:obj:`str`>
     """
     from .FIOBlissWriter import FIOBlissWriter as FIOBlWriter
-    # from .FIOBlissWriter import FIOBlissWriterClass as FIOBLSrvClass
 
     return run((FIOBlWriter,), args=args, **kwargs)
 
