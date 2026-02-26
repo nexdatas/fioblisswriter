@@ -1,0 +1,44 @@
+.TH FIOBlissWriter 1 "2021-02-13" FIOBlissWriter
+.SH NAME
+.B FIOBlissWriter
+\- Data Writer for FIO Files
+
+.SH SYNOPSIS
+.B  FIOBlissWriter
+.I <instance_name>
+[-v[trace level]] [-file=<file_name> | -nodb [-dlist <device name list>] ]
+] 
+
+
+.SH DESCRIPTION
+.B FIOBlissWriter
+is a Tango server which allows to store FIO Data files from blissdata2.
+The server provides storing data from other Tango devices, various databases 
+as well as passed by a user client via JSON strings.
+
+
+.SH OPTIONS
+.\".IP "--version"
+.\"show program's version number and exit
+.IP "-v"
+trace level
+.IP "-file"
+file name
+.IP "-nodb"
+without DB
+.IP "-dlist"
+device name list        
+
+.SH SEE ALSO
+https://github.com/jkotan/nexdatas/
+
+.SH COPYRIGHT
+Copyrights (c) 2026, GNU GPL v2, DESY, Jan Kotanski
+
+.SH BUGS
+Please report bugs on the project's mailing list:
+mailto://jankotan@gmail.com
+
+.SH AUTHORS
+Jan Kotanski <jankotan@gmail.com>, 
+
