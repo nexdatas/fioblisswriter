@@ -1,3 +1,9 @@
+2026-02-27 Jan Kotanski <jankotan@gmail.com>
+	* store snapshot units (#11)
+	* add SnapshotBlacklist property (#9)
+	* add SkipFinalParameters and MaxStringParameterSize (#6)
+	* tagged as v0.0.2
+
 2026-02-26 Jan Kotanski <jankotan@gmail.com>
 	* initial release
 	* tagged as v0.0.1

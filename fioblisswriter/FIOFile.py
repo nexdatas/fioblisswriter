@@ -111,9 +111,7 @@ class FIOFile:
 
     def snapshot_keys(self):
         si = self.__scan.info
-        snapshot = {}
-        if "snapshot" in si:
-            snapshot = si["snapshot"]
+        snapshot = si.get("snapshot", {})
         names = [nm for nm in snapshot.keys()]
         bllist = []
         for flt in self.__snapshot_blacklist:
@@ -154,16 +152,17 @@ class FIOFile:
         self.__mfile.flush()
 
         si = self.__scan.info
-        snapshot = {}
-        if "snapshot" in si:
-            snapshot = si["snapshot"]
+        snapshot = si.get("snapshot", {})
+        self._write_snapshot(snapshot, [None, "INIT"])
+
+    def _write_snapshot(self, snapshot, strategies):
 
         for ds in self.snapshot_keys():
             item = snapshot[ds]
-            strategy = None
-            if "strategy" in item:
-                strategy = item["strategy"]
-            if not strategy or strategy in ["INIT"]:
+            strategy = item.get("strategy", None)
+            unit = item.get("unit", None)
+
+            if strategy in strategies:
                 try:
                     value = item["value"]
                     try:
@@ -176,6 +175,10 @@ class FIOFile:
                         if len(value) > self.__max_string_parameter_size:
                             continue
                     self.__mfile.write("%s = %s\n" % (str(ds), str(value)))
+                    if unit:
+                        self.__mfile.write("%s@unit = %s\n"
+                                           % (str(ds), str(unit)))
+
                 except Exception as e:
                     print("Error: ", ds, strategy, item, str(e))
                     break
@@ -410,38 +413,14 @@ class FIOFile:
         """ write final data
         """
         si = self.__scan.info
-        snapshot = {}
-        if "snapshot" in si:
-            snapshot = si["snapshot"]
+        snapshot = si.get("snapshot", {})
 
         if not self.__skip_final_parameters:
             self.__mfile.write("!\n! Parameter\n!\n%p\n")
             self.__mfile.flush()
 
-            for ds in self.snapshot_keys():
-                item = snapshot[ds]
-                strategy = None
-                if "strategy" in item:
-                    strategy = item["strategy"]
+            self._write_snapshot(snapshot, ["FINAL"])
 
-                if strategy in ["FINAL"]:
-                    try:
-                        value = item["value"]
-                        try:
-                            dtype = item["dtype"]
-                        except Exception:
-                            dtype = ""
-                        if dtype in ["string", "str"] and \
-                                "\n" in str(value):
-                            value = '"%s"' % value
-                            if len(value) > \
-                                    self.__max_string_parameter_size:
-                                continue
-                        self.__mfile.write("%s = %s\n" % (str(ds),
-                                                          str(value)))
-                    except Exception as e:
-                        print("Error: ", ds, strategy, item, str(e))
-                        break
         try:
             end_time = snapshot["end_time"]
         except Exception:
