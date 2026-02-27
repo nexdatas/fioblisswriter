@@ -422,7 +422,7 @@ class FIOFile:
             self._write_snapshot(snapshot, ["FINAL"])
 
         try:
-            end_time = snapshot["end_time"]
+            end_time = si["end_time"]
         except Exception:
             end_time = time.ctime()
         self.__mfile.write("! Acquisition ended at %s\n" % end_time)
