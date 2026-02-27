@@ -37,12 +37,15 @@ ALLOWED_FIO_SURFIXES = {".fio"}
 
 def create_fio_file(
         scan,
+        streams,
         skip_final_parameters=False, max_string_parameter_size=300,
         snapshot_blacklist=None):
     """ open fio file
 
     :param scan: blissdata scan
     :type scan: :obj:`blissdata.redis_engine.scan.Scan`
+    :param streams: tango-like steamset class
+    :type streams: :class:`StreamSet` or :class:`tango.LatestDeviceImpl`
     :returns: nexus file object
     :rtype: :obj:`FIOFile`
     """
@@ -55,6 +58,7 @@ def create_fio_file(
         fdir.mkdir(parents=True)
 
     fiofl = FIOFile(scan, fpath,
+                    streams,
                     skip_final_parameters,
                     max_string_parameter_size,
                     snapshot_blacklist)
@@ -67,7 +71,7 @@ def create_fio_file(
 class FIOFile:
 
     def __init__(
-            self, scan, fpath,
+            self, scan, fpath, streams,
             skip_final_parameters=False, max_string_parameter_size=300,
             snapshot_blacklist=None, max_write_interval=1):
         """ constructor
@@ -76,11 +80,15 @@ class FIOFile:
         :type scan: :obj:`blissdata.redis_engine.scan.Scan`
         :param fpath: nexus file path
         :type fpath: :obj:`pathlib.Path`
+        :param streams: tango-like steamset class
+        :type streams: :class:`StreamSet` or :class:`tango.LatestDeviceImpl`
         :param max_write_interval: max write interval
         :type max_write_interval: :obj:`int`
         """
         self.__scan = scan
         self.__fpath = fpath
+        #: (:class:`StreamSet` or :class:`tango.LatestDeviceImpl`) stream set
+        self._streams = streams
         self.__skip_final_parameters = skip_final_parameters
         self.__max_string_parameter_size = max_string_parameter_size
         self.__snapshot_blacklist = snapshot_blacklist or []
@@ -180,7 +188,9 @@ class FIOFile:
                                            % (str(ds), str(unit)))
 
                 except Exception as e:
-                    print("Error: ", ds, strategy, item, str(e))
+                    self._streams.error(
+                        "FIOFile::_write_snapshot() %s %s %s %s"
+                        % (ds, strategy, item, str(e)))
                     break
 
     def prepareChannels(self):
@@ -202,7 +212,9 @@ class FIOFile:
         i = 1
         for ch in self.channels:
             key = ch["label"]
-            # print("CH", key, list(self.__scan.streams.keys()))
+            self._streams.debug(
+                "FIOFile::prepareChannels() - "
+                "CH %s %s" % (key, list(self.__scan.streams.keys())))
             if key in list(self.__scan.streams.keys()):
                 stream = self.__scan.streams[key]
                 self.__cursors[key] = stream.cursor()
@@ -260,7 +272,9 @@ class FIOFile:
             try:
                 val = self.__cursors[ch].read()
             except EndOfStream:
-                print("End of stream for ct column {}".format(ch))
+                self._streams.error(
+                    "FIOFile::write_scan_point() - "
+                    "End of stream for ct column {}".format(ch))
                 return
             val = val.get_data()
             if isinstance(val, np.ndarray):
@@ -278,7 +292,9 @@ class FIOFile:
             try:
                 val = self.__cursors[ch].read()
             except EndOfStream:
-                print("End of stream for mca column {}".format(ch))
+                self._streams.error(
+                    "FIOFile::write_scan_point() - "
+                    "End of stream for ct column {}".format(ch))
                 return
             val = val.get_data()
             if isinstance(val, np.ndarray):
@@ -302,8 +318,9 @@ class FIOFile:
                 try:
                     data = ct_values[ch][i]
                 except Exception as e:
-                    print(str(e))
-                    print("MISSING DATA for %s at %s" % (ch, i))
+                    self._streams.error(
+                        "FIOFile::write_scan_point() - "
+                        "MISSING DATA for %s at %s (%s)" % (ch, i, str(e)))
                     data = nan
                 data_len = None
                 # We are sure we get the 1d even with different types
@@ -376,8 +393,10 @@ class FIOFile:
                     try:
                         lmax = len(data)
                     except Exception as e:
-                        print("storage.py: %s, wrong data" % mcanames[0])
-                        print(repr(e))
+                        self._streams.error(
+                            "FIOFile::write_mca_file() - "
+                            "storage.py: %s, wrong data (%s)"
+                            % (mcanames[0], repr(e)))
                         fd.close()
                         os.chdir(curr_dir)
                         return
@@ -387,8 +406,10 @@ class FIOFile:
                             if len(data) > lmax:
                                 lmax = len(data)
                         except Exception as e:
-                            print("storage.py: %s, wrong data" % mca)
-                            print(repr(e))
+                            self._streams.error(
+                                "FIOFile::write_mca_file() - "
+                                "storage.py: %s, wrong data (%s)"
+                                % (mcanames[0], repr(e)))
                             fd.close()
                             os.chdir(curr_dir)
                             return

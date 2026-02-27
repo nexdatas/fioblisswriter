@@ -102,7 +102,8 @@ class FIOBlissWriter(Device):
         self.fio_writer_service = NWS(
             self.RedisUrl, self.Session, self.NextScanTimeout,
             self.SkipFinalParameters, self.MaxStringParameterSize,
-            self.SnapshotBlacklist
+            self.SnapshotBlacklist,
+            self
         )
         self.Start()
 
