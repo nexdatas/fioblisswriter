@@ -21,19 +21,21 @@
 
 # import time
 
+import weakref
 from blissdata.redis_engine.store import DataStore
 from blissdata.redis_engine.scan import ScanState
 # from blissdata.redis_engine.exceptions import EndOfStream
 from blissdata.redis_engine.exceptions import NoScanAvailable
 
 from .FIOFile import create_fio_file
+from .StreamSet import StreamSet
 
 
 class FIOWriterService:
 
     def __init__(self, redis_url, session, next_scan_timeout,
                  skip_final_parameters=False, max_string_parameter_size=300,
-                 snapshot_blacklist=None):
+                 snapshot_blacklist=None, server=None):
         """ constructor
 
         :param redis_url: blissdata redis url
@@ -48,8 +50,12 @@ class FIOWriterService:
         :type max_string_parameter_size: :obj:`int`
         :param snapshotblacklist: snapshot blacklist
         :type snapshotblacklist: :obj:`list` <:obj:`str`>
+        :param server: NXSConfigServer instance
+        :type server: :class:`tango.LatestDeviceImpl`
 
         """
+        #: (:class:`StreamSet` or :class:`tango.LatestDeviceImpl`) stream set
+        self._streams = StreamSet(weakref.ref(server) if server else None)
         #: (:obj:`bool`) service running flag
         self.__running = False
         #: (:obj:`int`) scan timeout in seconds
@@ -99,10 +105,12 @@ class FIOWriterService:
         """
         while scan.state < ScanState.PREPARED:
             scan.update()
-        print("SCAN", scan.number)
+        self._streams.info(
+            "FIOWriterService::write_scan CREATE FILE: %s" % scan.number)
 
         fiofl = create_fio_file(
             scan,
+            self._streams,
             self.__skip_final_parameters,
             self.__max_string_parameter_size,
             self.__snapshot_blacklist)
@@ -110,20 +118,23 @@ class FIOWriterService:
         if fiofl is None:
             return
 
-        print("SCAN INIT", scan.number)
+        self._streams.info(
+            "FIOWriterService::write_scan INIT: %s" % scan.number)
         fiofl.write_init_snapshot()
 
         fiofl.prepareChannels()
 
         while scan.state < ScanState.STOPPED:
             scan.update(block=False)
-            # print("SCAN POINT", scan.number)
+            self._streams.debug(
+                "FIOWriterService::write_scan SCAN POINT: %s" % scan.number)
             fiofl.write_scan_points()
 
         while scan.state < ScanState.CLOSED:
             scan.update()
 
-        print("SCAN FINAL", scan.number)
+        self._streams.info(
+            "FIOWriterService::write_scan FINAL: %s" % scan.number)
         fiofl.write_final_snapshot()
         fiofl.close()
 

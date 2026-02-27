@@ -1,7 +1,11 @@
 2026-02-27 Jan Kotanski <jankotan@gmail.com>
-	* store snapshot units (#11)
-	* add SnapshotBlacklist property (#9)
-	* add SkipFinalParameters and MaxStringParameterSize (#6)
+	* add tango stream support (#11)
+	* tagged as v0.0.3
+
+2026-02-27 Jan Kotanski <jankotan@gmail.com>
+	* store snapshot units (#8)
+	* add SnapshotBlacklist property (#6)
+	* add SkipFinalParameters and MaxStringParameterSize (#5)
 	* tagged as v0.0.2
 
 2026-02-26 Jan Kotanski <jankotan@gmail.com>
