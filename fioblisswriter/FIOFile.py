@@ -31,6 +31,12 @@ import numpy as np
 from blissdata.redis_engine.exceptions import EndOfStream
 # from blissdata.redis_engine.exceptions import NoScanAvailable
 
+from blissdata.streams.hdf5_fallback import Hdf5BackedStream
+from blissdata.streams.base import Stream, CursorGroup
+# from blissdata.streams.base import BaseStream
+# from blissdata.streams.lima import LimaStream
+# from blissdata.streams.lima2 import Lima2Stream
+
 
 ALLOWED_FIO_SURFIXES = {".fio"}
 
@@ -97,7 +103,8 @@ class FIOFile:
         self.__last_write_time = 0
 
         self.__mfile = None
-        self.__cursors = {}
+
+        self.__cursor_group = None
 
         self.__mca_dir_name = ""
         self.__mca_aliases = []
@@ -107,6 +114,7 @@ class FIOFile:
         self.__scan_name = ""
 
         self.__tot_point_nb = 0
+        self.__point_timeout = 3.0
 
     @functools.cached_property
     def channels(self):
@@ -206,10 +214,9 @@ class FIOFile:
 
         self.__mfile.write("!\n! Data\n!\n%d\n")
         self.__mfile.flush()
-        self.__cursors = {}
-        #         for key, stream in self.__scan.streams.items():
-        # -           self.__cursors[key] = stream.cursor()
         i = 1
+
+        streams = []
         for ch in self.channels:
             key = ch["label"]
             self._streams.debug(
@@ -217,7 +224,10 @@ class FIOFile:
                 "CH %s %s" % (key, list(self.__scan.streams.keys())))
             if key in list(self.__scan.streams.keys()):
                 stream = self.__scan.streams[key]
-                self.__cursors[key] = stream.cursor()
+                if isinstance(stream, Hdf5BackedStream):
+                    stream = Stream(stream.event_stream)
+
+                streams.append(stream)
 
                 shape = list(stream.shape)
 
@@ -247,6 +257,8 @@ class FIOFile:
                 self.__mfile.write(outLine)
                 i += 1
 
+        self.__cursor_group = CursorGroup(streams)
+
         outLine = " Col %d %s %s\n" % (i, 'timestamp', 'DOUBLE')
         self.__mfile.write(outLine)
 
@@ -268,39 +280,37 @@ class FIOFile:
         mca_values = {}
         ct_lengths = []
 
-        for ch in ctnames:
-            try:
-                val = self.__cursors[ch].read()
-            except EndOfStream:
-                self._streams.error(
-                    "FIOFile::write_scan_point() - "
-                    "End of stream for ct column {}".format(ch))
-                return
-            val = val.get_data()
-            if isinstance(val, np.ndarray):
+        try:
+            output = self.__cursor_group.read(timeout=self.__point_timeout)
+        except EndOfStream:
+            self._streams.error(
+                "FIOFile::write_scan_point() - "
+                "End of stream for group corsor")
+            return
+
+        for stream, view in output.items():
+            ch = stream.name
+            val = nan
+            if ch in ctnames or ch in mcanames:
+                try:
+                    val = view.get_data()
+                except Exception as e:
+                    self._streams.error(
+                        "FIOFile::write_scan_point() - "
+                        "Data not readable for %s (%s)"
+                        % (ch, str(e)))
+            if not isinstance(val, np.ndarray):
+                val = [val]
+            if ch in ctnames:
                 ct_values[ch] = val
-            else:
-                ct_values[ch] = [val]
-            ct_lengths.append(len(ct_values[ch]))
+                ct_lengths.append(len(ct_values[ch]))
+            elif ch in mcanames:
+                mca_values[ch] = val
 
         try:
             npoints = ct_lengths[0]
         except Exception:
             npoints = 0
-
-        for ch in mcanames:
-            try:
-                val = self.__cursors[ch].read()
-            except EndOfStream:
-                self._streams.error(
-                    "FIOFile::write_scan_point() - "
-                    "End of stream for ct column {}".format(ch))
-                return
-            val = val.get_data()
-            if isinstance(val, np.ndarray):
-                mca_values[ch] = val
-            else:
-                mca_values[ch] = [val]
 
         lines = []
 

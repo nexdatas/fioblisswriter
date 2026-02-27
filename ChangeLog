@@ -1,3 +1,7 @@
+2026-02-28 Jan Kotanski <jankotan@gmail.com>
+	* make use of CursorGroup (#13)
+	* tagged as v0.0.4
+
 2026-02-27 Jan Kotanski <jankotan@gmail.com>
 	* add tango stream support (#11)
 	* tagged as v0.0.3

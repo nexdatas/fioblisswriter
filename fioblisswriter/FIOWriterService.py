@@ -19,7 +19,7 @@
 
 """ Provides the access to a database with NDTS configuration files """
 
-# import time
+import time
 
 import weakref
 from blissdata.redis_engine.store import DataStore
@@ -63,6 +63,8 @@ class FIOWriterService:
         self.__skip_final_parameters = skip_final_parameters
         self.__max_string_parameter_size = max_string_parameter_size
         self.__snapshot_blacklist = snapshot_blacklist
+
+        self.__point_sleep_time = 0.02
 
         #: (:obj:`str`) session name
         self.__session = session
@@ -129,6 +131,7 @@ class FIOWriterService:
             self._streams.debug(
                 "FIOWriterService::write_scan SCAN POINT: %s" % scan.number)
             fiofl.write_scan_points()
+            time.sleep(self.__point_sleep_time)
 
         while scan.state < ScanState.CLOSED:
             scan.update()
