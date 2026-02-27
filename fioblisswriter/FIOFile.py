@@ -160,9 +160,8 @@ class FIOFile:
 
         for ds in self.snapshot_keys():
             item = snapshot[ds]
-            strategy = None
-            if "strategy" in item:
-                strategy = item["strategy"]
+            strategy = item.get("strategy", None)
+            unit = item.get("unit", None)
             if not strategy or strategy in ["INIT"]:
                 try:
                     value = item["value"]
@@ -176,6 +175,10 @@ class FIOFile:
                         if len(value) > self.__max_string_parameter_size:
                             continue
                     self.__mfile.write("%s = %s\n" % (str(ds), str(value)))
+                    if unit:
+                        self.__mfile.write("%s@unit = %s\n"
+                                           % (str(ds), str(unit)))
+
                 except Exception as e:
                     print("Error: ", ds, strategy, item, str(e))
                     break
@@ -420,7 +423,8 @@ class FIOFile:
 
             for ds in self.snapshot_keys():
                 item = snapshot[ds]
-                strategy = None
+                strategy = item.get("strategy", None)
+                unit = item.get("unit", None)
                 if "strategy" in item:
                     strategy = item["strategy"]
 
@@ -437,8 +441,11 @@ class FIOFile:
                             if len(value) > \
                                     self.__max_string_parameter_size:
                                 continue
-                        self.__mfile.write("%s = %s\n" % (str(ds),
-                                                          str(value)))
+                        self.__mfile.write("%s = %s\n"
+                                           % (str(ds), str(value)))
+                        if unit:
+                            self.__mfile.write("%s@unit = %s\n"
+                                               % (str(ds), str(unit)))
                     except Exception as e:
                         print("Error: ", ds, strategy, item, str(e))
                         break
