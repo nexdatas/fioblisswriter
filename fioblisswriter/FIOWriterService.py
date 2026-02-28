@@ -35,7 +35,7 @@ class FIOWriterService:
 
     def __init__(self, redis_url, session, next_scan_timeout,
                  skip_final_parameters=False, max_string_parameter_size=300,
-                 snapshot_blacklist=None, server=None):
+                 snapshot_blacklist=None, point_sleep_time=0.01, server=None):
         """ constructor
 
         :param redis_url: blissdata redis url
@@ -50,6 +50,8 @@ class FIOWriterService:
         :type max_string_parameter_size: :obj:`int`
         :param snapshotblacklist: snapshot blacklist
         :type snapshotblacklist: :obj:`list` <:obj:`str`>
+        :param point_sleep_time: sleep time between write point calls
+        :type point_sleep_time: :obj:`float`
         :param server: NXSConfigServer instance
         :type server: :class:`tango.LatestDeviceImpl`
 
@@ -63,8 +65,7 @@ class FIOWriterService:
         self.__skip_final_parameters = skip_final_parameters
         self.__max_string_parameter_size = max_string_parameter_size
         self.__snapshot_blacklist = snapshot_blacklist
-
-        self.__point_sleep_time = 0.02
+        self.__point_sleep_time = point_sleep_time
 
         #: (:obj:`str`) session name
         self.__session = session
@@ -115,7 +116,8 @@ class FIOWriterService:
             self._streams,
             self.__skip_final_parameters,
             self.__max_string_parameter_size,
-            self.__snapshot_blacklist)
+            self.__snapshot_blacklist
+        )
 
         if fiofl is None:
             return

@@ -52,6 +52,9 @@ class FIOBlissWriter(Device):
         SnapshotBlacklist
             - a list of snapshot keys for skip
             - Type:'DevVarStringArray'
+        PointSleepTime
+            - sleep time between write_point command calls
+            - Type:'float'
     """
 
     # -----------------
@@ -91,6 +94,12 @@ class FIOBlissWriter(Device):
         doc="a list of snapshot keys for skip"
     )
 
+    PointSleepTime = device_property(
+        dtype='float',
+        default_value=0.01,
+        doc="sleep time between write_point command calls"
+    )
+
     # ---------------
     # General methods
     # ---------------
@@ -103,6 +112,7 @@ class FIOBlissWriter(Device):
             self.RedisUrl, self.Session, self.NextScanTimeout,
             self.SkipFinalParameters, self.MaxStringParameterSize,
             self.SnapshotBlacklist,
+            self.PointSleepTime,
             self
         )
         self.Start()
