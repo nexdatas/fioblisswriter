@@ -1,4 +1,8 @@
 2026-02-28 Jan Kotanski <jankotan@gmail.com>
+	* end point writing on EndOfStream (#19)
+	* tagged as v0.0.5
+
+2026-02-28 Jan Kotanski <jankotan@gmail.com>
 	* make use of CursorGroup (#13)
 	* add PointSleepTime property (#17)
 	* tagged as v0.0.4

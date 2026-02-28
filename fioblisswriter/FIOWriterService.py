@@ -24,7 +24,7 @@ import time
 import weakref
 from blissdata.redis_engine.store import DataStore
 from blissdata.redis_engine.scan import ScanState
-# from blissdata.redis_engine.exceptions import EndOfStream
+from blissdata.redis_engine.exceptions import EndOfStream
 from blissdata.redis_engine.exceptions import NoScanAvailable
 
 from .FIOFile import create_fio_file
@@ -128,12 +128,16 @@ class FIOWriterService:
 
         fiofl.prepareChannels()
 
-        while scan.state < ScanState.STOPPED:
-            scan.update(block=False)
-            self._streams.debug(
-                "FIOWriterService::write_scan SCAN POINT: %s" % scan.number)
-            fiofl.write_scan_points()
-            time.sleep(self.__point_sleep_time)
+        while self.__running:
+            try:
+                scan.update(block=False)
+                self._streams.debug(
+                    "FIOWriterService::write_scan SCAN POINT: %s"
+                    % scan.number)
+                fiofl.write_scan_points()
+                time.sleep(self.__point_sleep_time)
+            except EndOfStream:
+                break
 
         while scan.state < ScanState.CLOSED:
             scan.update()
