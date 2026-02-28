@@ -283,10 +283,10 @@ class FIOFile:
         try:
             output = self.__cursor_group.read(timeout=self.__point_timeout)
         except EndOfStream:
-            self._streams.error(
+            self._streams.debug(
                 "FIOFile::write_scan_point() - "
-                "End of stream for group corsor")
-            return
+                "End of stream for group cursor")
+            raise
 
         for stream, view in output.items():
             ch = stream.name
