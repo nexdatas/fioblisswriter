@@ -282,44 +282,49 @@ class FIOFile:
         eos = set()
         eose = None
 
-        for ch in ctnames:
+        for ch in self.__cursors.keys():
+            if ch not in ctnames and ch not in mcanames:
+                continue
             try:
-                val = self.__cursors[ch].read()
-                rs.add(set)
+                view = self.__cursors[ch].read()
+                rs.add(ch)
             except EndOfStream as e:
                 self._streams.debug(
                     "FIOFile::write_scan_point() - "
                     "End of stream for ct column {}".format(ch))
                 eos.add(ch)
                 eose = e
+
+            bval = self.__buffer.get(ch, None)
+            if ch not in eos:
+                try:
+                    val = view.get_data()
+                except Exception as e:
+                    self._streams.error(
+                        "Error for channel %s: %s" % (ch, repr(e)))
+                    eos.add(ch)
+                    continue
+
+                if not isinstance(val, np.ndarray):
+                    print(ch, val, type(val))
+                    self._streams.warning(
+                        "No numpy array for %s: %s" % (ch, val))
+                    val = np.array([val])
+
+                if bval is not None:
+                    self._streams.debug(
+                        "Concatenate %s: %s %s" % (ch, bval, val))
+                    val = np.concatenate((bval, val))
+            elif bval is not None:
+                val = bval
+            else:
                 continue
-            val = val.get_data()
-            print(ch, val, type(val))
-            if isinstance(val, np.ndarray):
+            if ch in ctnames:
                 ct_values[ch] = val
-            else:
-                ct_values[ch] = [val]
-            print(ch, val, type(val))
-                
-            lengths.append(len(ct_values[ch]))
-
-        for ch in mcanames:
-            try:
-                val = self.__cursors[ch].read()
-                rs.add(ch)
-            except EndOfStream as e:
-                self._streams.error(
-                    "FIOFile::write_scan_point() - "
-                    "End of stream for ct column {}".format(ch))
-                eos.add(ch)
-                eose = e
-            val = val.get_data()
-            if isinstance(val, np.ndarray):
+            elif ch in mcanames:
                 mca_values[ch] = val
-            else:
-                mca_values[ch] = [val]
 
-            lengths.append(len(mca_values[ch]))
+            lengths.append(len(val))
 
         try:
             npoints = min(lengths)
@@ -329,7 +334,7 @@ class FIOFile:
             maxpoints = 0
 
         lines = []
-        
+
         for i in range(npoints):
             try:
                 timestamp = ct_values["timestamp"][i]
@@ -373,8 +378,18 @@ class FIOFile:
         self.__tot_point_nb += npoints
         self.__last_write_time = now
 
-        self.__buffer = {}
+        self.__buffer.clear()
         if npoints < maxpoints:
+            for ch in ctnames:
+                if ch in ct_values:
+                    value = ct_values[ch]
+                    if len(value) > npoints:
+                        self.__buffer[ch] = value[npoints:]
+            for ch in mcanames:
+                if ch in mca_values:
+                    value = mca_values[ch]
+                    if len(value) > npoints:
+                        self.__buffer[ch] = value[npoints:, :]
 
         if not len(rs):
             raise eose
