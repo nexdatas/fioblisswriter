@@ -32,7 +32,8 @@ from blissdata.redis_engine.exceptions import EndOfStream
 # from blissdata.redis_engine.exceptions import NoScanAvailable
 
 from blissdata.streams.hdf5_fallback import Hdf5BackedStream
-from blissdata.streams.base import Stream, CursorGroup
+from blissdata.streams.base import Stream
+# from blissdata.streams.base import CursorGroup
 # from blissdata.streams.base import BaseStream
 # from blissdata.streams.lima import LimaStream
 # from blissdata.streams.lima2 import Lima2Stream
@@ -103,8 +104,8 @@ class FIOFile:
         self.__last_write_time = 0
 
         self.__mfile = None
-
-        self.__cursor_group = None
+        self.__cursors = {}
+        self.__buffer = {}
 
         self.__mca_dir_name = ""
         self.__mca_aliases = []
@@ -114,7 +115,6 @@ class FIOFile:
         self.__scan_name = ""
 
         self.__tot_point_nb = 0
-        self.__point_timeout = 3.0
 
     @functools.cached_property
     def channels(self):
@@ -214,9 +214,9 @@ class FIOFile:
 
         self.__mfile.write("!\n! Data\n!\n%d\n")
         self.__mfile.flush()
+        self.__cursors = {}
         i = 1
 
-        streams = []
         for ch in self.channels:
             key = ch["label"]
             self._streams.debug(
@@ -227,7 +227,7 @@ class FIOFile:
                 if isinstance(stream, Hdf5BackedStream):
                     stream = Stream(stream.event_stream)
 
-                streams.append(stream)
+                self.__cursors[key] = stream.cursor()
 
                 shape = list(stream.shape)
 
@@ -257,8 +257,6 @@ class FIOFile:
                 self.__mfile.write(outLine)
                 i += 1
 
-        self.__cursor_group = CursorGroup(streams)
-
         outLine = " Col %d %s %s\n" % (i, 'timestamp', 'DOUBLE')
         self.__mfile.write(outLine)
 
@@ -278,42 +276,60 @@ class FIOFile:
 
         ct_values = {}
         mca_values = {}
-        ct_lengths = []
+        lengths = []
 
-        try:
-            output = self.__cursor_group.read(timeout=self.__point_timeout)
-        except EndOfStream:
-            self._streams.debug(
-                "FIOFile::write_scan_point() - "
-                "End of stream for group cursor")
-            raise
+        rs = set()
+        eos = set()
+        eose = None
 
-        for stream, view in output.items():
-            ch = stream.name
-            val = nan
-            if ch in ctnames or ch in mcanames:
-                try:
-                    val = view.get_data()
-                except Exception as e:
-                    self._streams.error(
-                        "FIOFile::write_scan_point() - "
-                        "Data not readable for %s (%s)"
-                        % (ch, str(e)))
-            if not isinstance(val, np.ndarray):
-                val = [val]
-            if ch in ctnames:
+        for ch in ctnames:
+            try:
+                val = self.__cursors[ch].read()
+                rs.add(set)
+            except EndOfStream as e:
+                self._streams.debug(
+                    "FIOFile::write_scan_point() - "
+                    "End of stream for ct column {}".format(ch))
+                eos.add(ch)
+                eose = e
+                continue
+            val = val.get_data()
+            print(ch, val, type(val))
+            if isinstance(val, np.ndarray):
                 ct_values[ch] = val
-                ct_lengths.append(len(ct_values[ch]))
-            elif ch in mcanames:
+            else:
+                ct_values[ch] = [val]
+            print(ch, val, type(val))
+                
+            lengths.append(len(ct_values[ch]))
+
+        for ch in mcanames:
+            try:
+                val = self.__cursors[ch].read()
+                rs.add(ch)
+            except EndOfStream as e:
+                self._streams.error(
+                    "FIOFile::write_scan_point() - "
+                    "End of stream for ct column {}".format(ch))
+                eos.add(ch)
+                eose = e
+            val = val.get_data()
+            if isinstance(val, np.ndarray):
                 mca_values[ch] = val
+            else:
+                mca_values[ch] = [val]
+
+            lengths.append(len(mca_values[ch]))
 
         try:
-            npoints = ct_lengths[0]
+            npoints = min(lengths)
+            maxpoints = max(lengths)
         except Exception:
             npoints = 0
+            maxpoints = 0
 
         lines = []
-
+        
         for i in range(npoints):
             try:
                 timestamp = ct_values["timestamp"][i]
@@ -356,6 +372,12 @@ class FIOFile:
 
         self.__tot_point_nb += npoints
         self.__last_write_time = now
+
+        self.__buffer = {}
+        if npoints < maxpoints:
+
+        if not len(rs):
+            raise eose
 
     def write_mca_file(self, mca_values, ct_values, npoints):
         curr_dir = os.getcwd()
