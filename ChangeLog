@@ -1,4 +1,8 @@
 2026-02-28 Jan Kotanski <jankotan@gmail.com>
+	* Buffer read values when cursors contains different number of points (#22)
+	* tagged as v0.0.6
+
+2026-02-28 Jan Kotanski <jankotan@gmail.com>
 	* end point writing on EndOfStream (#19)
 	* tagged as v0.0.5
 
