@@ -363,7 +363,7 @@ class FIOFile:
                         outstr += ' ' + str(data)
                 except Exception:
                     outstr += ' ' + str(data)
-                outstr += ' ' + str(timestamp)
+            outstr += ' ' + str(timestamp)
 
             lines.append(outstr)
 

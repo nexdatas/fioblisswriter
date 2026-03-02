@@ -1,4 +1,8 @@
-2026-02-28 Jan Kotanski <jankotan@gmail.com>
+2026-03-02 Jan Kotanski <jankotan@gmail.com>
+	* fix typo in timestamp storing (#25)
+	* tagged as v0.0.7
+
+2026-03-02 Jan Kotanski <jankotan@gmail.com>
 	* Buffer read values when cursors contains different number of points (#22)
 	* tagged as v0.0.6
 
