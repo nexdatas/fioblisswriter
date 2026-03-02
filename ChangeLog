@@ -1,4 +1,8 @@
 2026-03-02 Jan Kotanski <jankotan@gmail.com>
+	* skip writing when session property is not defined (#28)
+	* tagged as v0.0.8
+
+2026-03-02 Jan Kotanski <jankotan@gmail.com>
 	* fix typo in timestamp storing (#25)
 	* tagged as v0.0.7
 

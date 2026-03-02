@@ -86,7 +86,7 @@ class FIOWriterService:
             except NoScanAvailable:
                 continue
             scan = self.__datastore.load_scan(key)
-            if not self.__session or scan.session == self.__session:
+            if self.__session in [scan.session, "__all__"]:
                 self.write_scan(scan)
 
     def get_status(self):
