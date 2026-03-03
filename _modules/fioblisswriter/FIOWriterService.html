@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fioblisswriter.FIOWriterService &#8212; FIOBlissWriter 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          FIOBlissWriter</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fioblisswriter.html">fioblisswriter package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../fioblisswriter.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fioblisswriter.html#module-fioblisswriter.FIOFile">fioblisswriter.FIOFile module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fioblisswriter.html#module-fioblisswriter.Release">fioblisswriter.Release module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fioblisswriter.html#module-fioblisswriter.FIOBlissWriter">fioblisswriter.FIOBlissWriter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fioblisswriter.html#module-fioblisswriter.FIOWriterService">fioblisswriter.FIOWriterService module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fioblisswriter.html#module-fioblisswriter">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for fioblisswriter.FIOWriterService</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#   This file is part of nexdatas - Tango Server for FIO blissdata writer</span>
+<span class="c1">#</span>
+<span class="c1">#    Copyright (C) 2026 DESY, Jan Kotanski &lt;jkotan@mail.desy.de&gt;</span>
+<span class="c1">#</span>
+<span class="c1">#    nexdatas is free software: you can redistribute it and/or modify</span>
+<span class="c1">#    it under the terms of the GNU General Public License as published by</span>
+<span class="c1">#    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">#    (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#    nexdatas is distributed in the hope that it will be useful,</span>
+<span class="c1">#    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">#    GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#    You should have received a copy of the GNU General Public License</span>
+<span class="c1">#    along with nexdatas.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot; Provides the access to a database with NDTS configuration files &quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">weakref</span>
+<span class="kn">from</span> <span class="nn">blissdata.redis_engine.store</span> <span class="kn">import</span> <span class="n">DataStore</span>
+<span class="kn">from</span> <span class="nn">blissdata.redis_engine.scan</span> <span class="kn">import</span> <span class="n">ScanState</span>
+<span class="kn">from</span> <span class="nn">blissdata.redis_engine.exceptions</span> <span class="kn">import</span> <span class="n">EndOfStream</span>
+<span class="kn">from</span> <span class="nn">blissdata.redis_engine.exceptions</span> <span class="kn">import</span> <span class="n">NoScanAvailable</span>
+
+<span class="kn">from</span> <span class="nn">.FIOFile</span> <span class="kn">import</span> <span class="n">create_fio_file</span>
+<span class="kn">from</span> <span class="nn">.StreamSet</span> <span class="kn">import</span> <span class="n">StreamSet</span>
+
+
+<div class="viewcode-block" id="FIOWriterService"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService">[docs]</a><span class="k">class</span> <span class="nc">FIOWriterService</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redis_url</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">next_scan_timeout</span><span class="p">,</span>
+                 <span class="n">skip_final_parameters</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_string_parameter_size</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+                 <span class="n">snapshot_blacklist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">point_sleep_time</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; constructor</span>
+
+<span class="sd">        :param redis_url: blissdata redis url</span>
+<span class="sd">        :type redis_url: :obj:`str`</span>
+<span class="sd">        :param session: blissdata session name</span>
+<span class="sd">        :type session: :obj:`str`</span>
+<span class="sd">        :param next_scan_timeout: timeout  between the scans in seconds</span>
+<span class="sd">        :type next_scan_timeout: :obj:`int`</span>
+<span class="sd">        :param skip_final_parameters: skip final parameters</span>
+<span class="sd">        :type skip_final_parameters: :obj:`bool`</span>
+<span class="sd">        :param max_string_parameter_size: maximal string parameter size</span>
+<span class="sd">        :type max_string_parameter_size: :obj:`int`</span>
+<span class="sd">        :param snapshotblacklist: snapshot blacklist</span>
+<span class="sd">        :type snapshotblacklist: :obj:`list` &lt;:obj:`str`&gt;</span>
+<span class="sd">        :param point_sleep_time: sleep time between write point calls</span>
+<span class="sd">        :type point_sleep_time: :obj:`float`</span>
+<span class="sd">        :param server: NXSConfigServer instance</span>
+<span class="sd">        :type server: :class:`tango.LatestDeviceImpl`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#: (:class:`StreamSet` or :class:`tango.LatestDeviceImpl`) stream set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span> <span class="o">=</span> <span class="n">StreamSet</span><span class="p">(</span><span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="n">server</span><span class="p">)</span> <span class="k">if</span> <span class="n">server</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1">#: (:obj:`bool`) service running flag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#: (:obj:`int`) scan timeout in seconds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__next_scan_timeout</span> <span class="o">=</span> <span class="n">next_scan_timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__skip_final_parameters</span> <span class="o">=</span> <span class="n">skip_final_parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__max_string_parameter_size</span> <span class="o">=</span> <span class="n">max_string_parameter_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__snapshot_blacklist</span> <span class="o">=</span> <span class="n">snapshot_blacklist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__point_sleep_time</span> <span class="o">=</span> <span class="n">point_sleep_time</span>
+
+        <span class="c1">#: (:obj:`str`) session name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="o">=</span> <span class="n">session</span>
+        <span class="c1">#: (:class:`blissdata.redis_engine.store.DataStore`) datastore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span> <span class="o">=</span> <span class="n">DataStore</span><span class="p">(</span><span class="n">redis_url</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FIOWriterService.start"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; start writer service</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">__running</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">timestamp</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span><span class="o">.</span><span class="n">get_next_scan</span><span class="p">(</span>
+                    <span class="n">since</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__next_scan_timeout</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">NoScanAvailable</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">scan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span><span class="o">.</span><span class="n">load_scan</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="ow">in</span> <span class="p">[</span><span class="n">scan</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="s2">&quot;__all__&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_scan</span><span class="p">(</span><span class="n">scan</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FIOWriterService.get_status"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.get_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; get writer service status</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;is RUNNING&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="k">else</span> <span class="s2">&quot;is STOPPED&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;FIOBlissWriter </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">status</span></div>
+
+<div class="viewcode-block" id="FIOWriterService.stop"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; stop writer service</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="FIOWriterService.write_scan"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.write_scan">[docs]</a>    <span class="k">def</span> <span class="nf">write_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scan</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; write scan data</span>
+
+<span class="sd">        :param scan: blissdata scan</span>
+<span class="sd">        :type scan:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="n">scan</span><span class="o">.</span><span class="n">state</span> <span class="o">&lt;</span> <span class="n">ScanState</span><span class="o">.</span><span class="n">PREPARED</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__point_sleep_time</span><span class="p">)</span>
+            <span class="n">scan</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;FIOWriterService::write_scan CREATE FILE: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+
+        <span class="n">fiofl</span> <span class="o">=</span> <span class="n">create_fio_file</span><span class="p">(</span>
+            <span class="n">scan</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__skip_final_parameters</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__max_string_parameter_size</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__snapshot_blacklist</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fiofl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;FIOWriterService::write_scan INIT: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+        <span class="n">fiofl</span><span class="o">.</span><span class="n">write_init_snapshot</span><span class="p">()</span>
+
+        <span class="n">fiofl</span><span class="o">.</span><span class="n">prepareChannels</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">__running</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">scan</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;FIOWriterService::write_scan SCAN POINT: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="n">scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+                <span class="n">fiofl</span><span class="o">.</span><span class="n">write_scan_points</span><span class="p">()</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__point_sleep_time</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">EndOfStream</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">while</span> <span class="n">scan</span><span class="o">.</span><span class="n">state</span> <span class="o">&lt;</span> <span class="n">ScanState</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__point_sleep_time</span><span class="p">)</span>
+            <span class="n">scan</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;FIOWriterService::write_scan FINAL: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+        <span class="n">fiofl</span><span class="o">.</span><span class="n">write_final_snapshot</span><span class="p">()</span>
+        <span class="n">fiofl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; main function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">argparse</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Start a Tango server for saving data from blisdata&quot;</span>
+        <span class="s2">&quot;in FIO file&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--redis-url&quot;</span><span class="p">,</span> <span class="s2">&quot;-u&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;redis_url&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;redis://localhost:6380&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Blissdata redis url (&#39;redis://localhost:6380&#39; by default)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--session&quot;</span><span class="p">,</span> <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;session&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Blissdata session name (&#39;&#39; by default)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--scan-timeout&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;scan_timeout&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Scan timeout (0 by default)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">FIOWriterService</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">redis_url</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">scan_timeout</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2026 DESY, Jan Kotanski &lt;jkotan@mail.desy.de&gt;
+
+GNU GENERAL PUBLIC LICENSE, version 3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

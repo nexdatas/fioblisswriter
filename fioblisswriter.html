@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>fioblisswriter package &#8212; FIOBlissWriter 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to FIO BlissData Writer’s documentation!" href="index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          FIOBlissWriter</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">fioblisswriter package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fioblisswriter.FIOFile">fioblisswriter.FIOFile module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fioblisswriter.Release">fioblisswriter.Release module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fioblisswriter.FIOBlissWriter">fioblisswriter.FIOBlissWriter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fioblisswriter.FIOWriterService">fioblisswriter.FIOWriterService module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fioblisswriter">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">fioblisswriter package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-fioblisswriter.FIOFile">fioblisswriter.FIOFile module</a><ul>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile"><code class="docutils literal notranslate"><span class="pre">FIOFile</span></code></a><ul>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.channels"><code class="docutils literal notranslate"><span class="pre">FIOFile.channels</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.close"><code class="docutils literal notranslate"><span class="pre">FIOFile.close()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.create_file_structure"><code class="docutils literal notranslate"><span class="pre">FIOFile.create_file_structure()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.labels"><code class="docutils literal notranslate"><span class="pre">FIOFile.labels</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.prepareChannels"><code class="docutils literal notranslate"><span class="pre">FIOFile.prepareChannels()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.snapshot_keys"><code class="docutils literal notranslate"><span class="pre">FIOFile.snapshot_keys()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.write_final_snapshot"><code class="docutils literal notranslate"><span class="pre">FIOFile.write_final_snapshot()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.write_init_snapshot"><code class="docutils literal notranslate"><span class="pre">FIOFile.write_init_snapshot()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.write_mca_file"><code class="docutils literal notranslate"><span class="pre">FIOFile.write_mca_file()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile.write_scan_points"><code class="docutils literal notranslate"><span class="pre">FIOFile.write_scan_points()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#fioblisswriter.FIOFile.create_fio_file"><code class="docutils literal notranslate"><span class="pre">create_fio_file()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-fioblisswriter.Release">fioblisswriter.Release module</a></li>
+<li><a class="reference internal" href="#module-fioblisswriter.FIOBlissWriter">fioblisswriter.FIOBlissWriter module</a><ul>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter</span></code></a><ul>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.MaxStringParameterSize"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.MaxStringParameterSize</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.NextScanTimeout"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.NextScanTimeout</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.PointSleepTime"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.PointSleepTime</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.RedisUrl"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.RedisUrl</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.Session"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.Session</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.SkipFinalParameters"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.SkipFinalParameters</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.SnapshotBlacklist"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.SnapshotBlacklist</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.Start"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.Start()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.Stop"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.Stop()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.TangoClassClass"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.TangoClassClass</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.TangoClassName"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.TangoClassName</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.delete_device"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.delete_device()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.dev_status"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.dev_status()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.init_device"><code class="docutils literal notranslate"><span class="pre">FIOBlissWriter.init_device()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-fioblisswriter.FIOWriterService">fioblisswriter.FIOWriterService module</a><ul>
+<li><a class="reference internal" href="#fioblisswriter.FIOWriterService.FIOWriterService"><code class="docutils literal notranslate"><span class="pre">FIOWriterService</span></code></a><ul>
+<li><a class="reference internal" href="#fioblisswriter.FIOWriterService.FIOWriterService.get_status"><code class="docutils literal notranslate"><span class="pre">FIOWriterService.get_status()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOWriterService.FIOWriterService.start"><code class="docutils literal notranslate"><span class="pre">FIOWriterService.start()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOWriterService.FIOWriterService.stop"><code class="docutils literal notranslate"><span class="pre">FIOWriterService.stop()</span></code></a></li>
+<li><a class="reference internal" href="#fioblisswriter.FIOWriterService.FIOWriterService.write_scan"><code class="docutils literal notranslate"><span class="pre">FIOWriterService.write_scan()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#fioblisswriter.FIOWriterService.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-fioblisswriter">Module contents</a><ul>
+<li><a class="reference internal" href="#fioblisswriter.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="index.html" title="Previous Chapter: Welcome to FIO BlissData Writer’s documentation!"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Welcome to FI...</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="fioblisswriter-package">
+<h1>fioblisswriter package<a class="headerlink" href="#fioblisswriter-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-fioblisswriter.FIOFile">
+<span id="fioblisswriter-fiofile-module"></span><h2>fioblisswriter.FIOFile module<a class="headerlink" href="#module-fioblisswriter.FIOFile" title="Permalink to this heading">¶</a></h2>
+<p>Provides the access to a database with NDTS configuration files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fioblisswriter.FIOFile.</span></span><span class="sig-name descname"><span class="pre">FIOFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_final_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_string_parameter_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_blacklist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_write_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#FIOFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.12/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>constructor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scan</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">blissdata.redis_engine.scan.Scan</span></code>) – blissdata scan</p></li>
+<li><p><strong>fpath</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pathlib.Path</span></code></a>) – nexus file path</p></li>
+<li><p><strong>streams</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">StreamSet</span></code> or <a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/device.html#tango.LatestDeviceImpl" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tango.LatestDeviceImpl</span></code></a>) – tango-like steamset class</p></li>
+<li><p><strong>max_write_interval</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>) – max write interval</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.channels">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channels</span></span><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.channels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#FIOFile.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>close file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.create_file_structure">
+<span class="sig-name descname"><span class="pre">create_file_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#FIOFile.create_file_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.create_file_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>create nexus structure</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.labels">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">labels</span></span><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.prepareChannels">
+<span class="sig-name descname"><span class="pre">prepareChannels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#FIOFile.prepareChannels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.prepareChannels" title="Permalink to this definition">¶</a></dt>
+<dd><p>prepare cursors</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.snapshot_keys">
+<span class="sig-name descname"><span class="pre">snapshot_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#FIOFile.snapshot_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.snapshot_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.write_final_snapshot">
+<span class="sig-name descname"><span class="pre">write_final_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#FIOFile.write_final_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.write_final_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>write final data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.write_init_snapshot">
+<span class="sig-name descname"><span class="pre">write_init_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#FIOFile.write_init_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.write_init_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>write inits data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.write_mca_file">
+<span class="sig-name descname"><span class="pre">write_mca_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mca_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ct_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npoints</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#FIOFile.write_mca_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.write_mca_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.FIOFile.write_scan_points">
+<span class="sig-name descname"><span class="pre">write_scan_points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#FIOFile.write_scan_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.FIOFile.write_scan_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>write step data</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fioblisswriter.FIOFile.create_fio_file">
+<span class="sig-prename descclassname"><span class="pre">fioblisswriter.FIOFile.</span></span><span class="sig-name descname"><span class="pre">create_fio_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_final_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_string_parameter_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_blacklist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOFile.html#create_fio_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOFile.create_fio_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>open fio file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scan</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">blissdata.redis_engine.scan.Scan</span></code>) – blissdata scan</p></li>
+<li><p><strong>streams</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">StreamSet</span></code> or <a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/device.html#tango.LatestDeviceImpl" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tango.LatestDeviceImpl</span></code></a>) – tango-like steamset class</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>nexus file object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fioblisswriter.FIOFile.FIOFile" title="fioblisswriter.FIOFile.FIOFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIOFile</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-fioblisswriter.Release">
+<span id="fioblisswriter-release-module"></span><h2>fioblisswriter.Release module<a class="headerlink" href="#module-fioblisswriter.Release" title="Permalink to this heading">¶</a></h2>
+<p>release version module</p>
+</section>
+<section id="module-fioblisswriter.FIOBlissWriter">
+<span id="fioblisswriter-fioblisswriter-module"></span><h2>fioblisswriter.FIOBlissWriter module<a class="headerlink" href="#module-fioblisswriter.FIOBlissWriter" title="Permalink to this heading">¶</a></h2>
+<p>FIO Bliss Writer</p>
+<p>FIO Bliss Writer stores (meta)data from blissdata provided by FIODataWriter</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fioblisswriter.FIOBlissWriter.</span></span><span class="sig-name descname"><span class="pre">FIOBlissWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOBlissWriter.html#FIOBlissWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/server.html#tango.server.Device" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a></p>
+<p>FIO Bliss Writer stores (meta)data from blissdata provided
+by FIODataWriter</p>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Device Property</dt><dd><dl class="simple">
+<dt>RedisUrl</dt><dd><ul>
+<li><p>Dlissdata redis url</p></li>
+<li><p>Type:’str’</p></li>
+</ul>
+</dd>
+<dt>Session</dt><dd><ul>
+<li><p>session to be recorder</p></li>
+<li><p>Type:’str’</p></li>
+</ul>
+</dd>
+<dt>NextScanTimeout</dt><dd><ul>
+<li><p>timeout for next scan writing</p></li>
+<li><p>Type:’int’</p></li>
+</ul>
+</dd>
+<dt>SkipFinalParameters</dt><dd><ul>
+<li><p>do not store parameters with the FINAL  strategy</p></li>
+<li><p>Type:’bool’</p></li>
+</ul>
+</dd>
+<dt>MaxStringParameterSize</dt><dd><ul>
+<li><p>maximal  value size of string parameters</p></li>
+<li><p>Type:’int’</p></li>
+</ul>
+</dd>
+<dt>SnapshotBlacklist</dt><dd><ul>
+<li><p>a list of snapshot keys for skip</p></li>
+<li><p>Type:’DevVarStringArray’</p></li>
+</ul>
+</dd>
+<dt>PointSleepTime</dt><dd><ul>
+<li><p>sleep time between write_point command calls</p></li>
+<li><p>Type:’float’</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.MaxStringParameterSize">
+<span class="sig-name descname"><span class="pre">MaxStringParameterSize</span></span><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.MaxStringParameterSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>maximal value size of string parameters</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.NextScanTimeout">
+<span class="sig-name descname"><span class="pre">NextScanTimeout</span></span><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.NextScanTimeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>timeout for next scan writing</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.PointSleepTime">
+<span class="sig-name descname"><span class="pre">PointSleepTime</span></span><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.PointSleepTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>sleep time between write_point command calls</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.RedisUrl">
+<span class="sig-name descname"><span class="pre">RedisUrl</span></span><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.RedisUrl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blissdata redis url</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.Session">
+<span class="sig-name descname"><span class="pre">Session</span></span><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.Session" title="Permalink to this definition">¶</a></dt>
+<dd><p>session to be recorder</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.SkipFinalParameters">
+<span class="sig-name descname"><span class="pre">SkipFinalParameters</span></span><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.SkipFinalParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>do not store parameters with the FINAL strategy</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.SnapshotBlacklist">
+<span class="sig-name descname"><span class="pre">SnapshotBlacklist</span></span><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.SnapshotBlacklist" title="Permalink to this definition">¶</a></dt>
+<dd><p>a list of snapshot keys for skip</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.Start">
+<span class="sig-name descname"><span class="pre">Start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOBlissWriter.html#FIOBlissWriter.Start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.Start" title="Permalink to this definition">¶</a></dt>
+<dd><p>‘Start’ TANGO command</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>arg</strong> (<em>DevVoid</em>) – (not documented)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(not documented)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DevVoid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.Stop">
+<span class="sig-name descname"><span class="pre">Stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOBlissWriter.html#FIOBlissWriter.Stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.Stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>‘Stop’ TANGO command</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>arg</strong> (<em>DevVoid</em>) – (not documented)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(not documented)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DevVoid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.TangoClassClass">
+<span class="sig-name descname"><span class="pre">TangoClassClass</span></span><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.TangoClassClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">FIOBlissWriterClass</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.TangoClassName">
+<span class="sig-name descname"><span class="pre">TangoClassName</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FIOBlissWriter'</span></em><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.TangoClassName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.delete_device">
+<span class="sig-name descname"><span class="pre">delete_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOBlissWriter.html#FIOBlissWriter.delete_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.delete_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destructs the attributes and properties of the FIOBlissWriter.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.dev_status">
+<span class="sig-name descname"><span class="pre">dev_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="_modules/fioblisswriter/FIOBlissWriter.html#FIOBlissWriter.dev_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.dev_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get device status.</p>
+<p>Default method to get device status. It returns the contents of the device
+dev_status field. If the device state is ALARM, alarm messages are added
+to the device status. This method can be redefined in sub-classes in case
+of the default behaviour does not fullfill the needs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the device status</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#str" title="(in Python v3.12)">str</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>DevFailed</strong> – If it is necessary to read attribute(s) and a problem occurs during the reading</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOBlissWriter.FIOBlissWriter.init_device">
+<span class="sig-name descname"><span class="pre">init_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOBlissWriter.html#FIOBlissWriter.init_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOBlissWriter.FIOBlissWriter.init_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the attributes and properties of the FIOBlissWriter.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-fioblisswriter.FIOWriterService">
+<span id="fioblisswriter-fiowriterservice-module"></span><h2>fioblisswriter.FIOWriterService module<a class="headerlink" href="#module-fioblisswriter.FIOWriterService" title="Permalink to this heading">¶</a></h2>
+<p>Provides the access to a database with NDTS configuration files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fioblisswriter.FIOWriterService.FIOWriterService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fioblisswriter.FIOWriterService.</span></span><span class="sig-name descname"><span class="pre">FIOWriterService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redis_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_scan_timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_final_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_string_parameter_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_blacklist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_sleep_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOWriterService.html#FIOWriterService"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOWriterService.FIOWriterService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.12/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>constructor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>redis_url</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – blissdata redis url</p></li>
+<li><p><strong>session</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – blissdata session name</p></li>
+<li><p><strong>next_scan_timeout</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>) – timeout  between the scans in seconds</p></li>
+<li><p><strong>skip_final_parameters</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – skip final parameters</p></li>
+<li><p><strong>max_string_parameter_size</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>) – maximal string parameter size</p></li>
+<li><p><strong>snapshotblacklist</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code></a> &lt;<a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>&gt;) – snapshot blacklist</p></li>
+<li><p><strong>point_sleep_time</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – sleep time between write point calls</p></li>
+<li><p><strong>server</strong> (<a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/device.html#tango.LatestDeviceImpl" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tango.LatestDeviceImpl</span></code></a>) – NXSConfigServer instance</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOWriterService.FIOWriterService.get_status">
+<span class="sig-name descname"><span class="pre">get_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOWriterService.html#FIOWriterService.get_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOWriterService.FIOWriterService.get_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>get writer service status</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOWriterService.FIOWriterService.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOWriterService.html#FIOWriterService.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOWriterService.FIOWriterService.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>start writer service</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOWriterService.FIOWriterService.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOWriterService.html#FIOWriterService.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOWriterService.FIOWriterService.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>stop writer service</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fioblisswriter.FIOWriterService.FIOWriterService.write_scan">
+<span class="sig-name descname"><span class="pre">write_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scan</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOWriterService.html#FIOWriterService.write_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOWriterService.FIOWriterService.write_scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>write scan data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>scan</strong> – blissdata scan</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fioblisswriter.FIOWriterService.main">
+<span class="sig-prename descclassname"><span class="pre">fioblisswriter.FIOWriterService.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOWriterService.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOWriterService.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>main function</p>
+</dd></dl>
+
+</section>
+<section id="module-fioblisswriter">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fioblisswriter" title="Permalink to this heading">¶</a></h2>
+<p>Implementation of FIO Blissdata writer Server</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fioblisswriter.run">
+<span class="sig-prename descclassname"><span class="pre">fioblisswriter.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_stream=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">util=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_loop=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_init_callback=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_init_callback=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">green_mode=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raises=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_stream=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stderr&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tango/server.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a simple way to run a tango server. It handles exceptions
+by writting a message to the msg_stream.</p>
+<dl class="field-list">
+<dt class="field-odd">Examples<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Example 1: registering and running a PowerSupply inheriting from
+<a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/server.html#tango.server.Device" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tango.server</span> <span class="kn">import</span> <span class="n">Device</span><span class="p">,</span> <span class="n">run</span>
+
+<span class="k">class</span> <span class="nc">PowerSupply</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="n">run</span><span class="p">((</span><span class="n">PowerSupply</span><span class="p">,))</span>
+</pre></div>
+</div>
+<p>Example 2: registering and running a MyServer defined by tango
+classes <cite>MyServerClass</cite> and <cite>MyServer</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tango</span> <span class="kn">import</span> <span class="n">Device_4Impl</span><span class="p">,</span> <span class="n">DeviceClass</span>
+<span class="kn">from</span> <span class="nn">tango.server</span> <span class="kn">import</span> <span class="n">run</span>
+
+<span class="k">class</span> <span class="nc">MyServer</span><span class="p">(</span><span class="n">Device_4Impl</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">MyServerClass</span><span class="p">(</span><span class="n">DeviceClass</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="n">run</span><span class="p">({</span><span class="s1">&#39;MyServer&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">MyServerClass</span><span class="p">,</span> <span class="n">MyServer</span><span class="p">)})</span>
+</pre></div>
+</div>
+<p>Example 3: registering and running a MyServer defined by tango
+classes <cite>MyServerClass</cite> and <cite>MyServer</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tango</span> <span class="kn">import</span> <span class="n">Device_4Impl</span><span class="p">,</span> <span class="n">DeviceClass</span>
+<span class="kn">from</span> <span class="nn">tango.server</span> <span class="kn">import</span> <span class="n">Device</span><span class="p">,</span> <span class="n">run</span>
+
+<span class="k">class</span> <span class="nc">PowerSupply</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">MyServer</span><span class="p">(</span><span class="n">Device_4Impl</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">MyServerClass</span><span class="p">(</span><span class="n">DeviceClass</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="n">run</span><span class="p">([</span><span class="n">PowerSupply</span><span class="p">,</span> <span class="p">[</span><span class="n">MyServerClass</span><span class="p">,</span> <span class="n">MyServer</span><span class="p">]])</span>
+<span class="c1"># or: run({&#39;MyServer&#39;: (MyServerClass, MyServer)})</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>the order of registration of tango classes defines the order
+tango uses to initialize the corresponding devices.
+if using a dictionary as argument for classes be aware that the
+order of registration becomes arbitrary. If you need a
+predefined order use a sequence or an OrderedDict.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>classes</strong> (<em>Sequence</em><em>[</em><a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/server.html#tango.server.Device" title="(in PyTango v10.1)"><em>tango.server.Device</em></a><em>] </em><em>| </em><a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – <p>Defines for which Tango Device Classes the server will run.
+If <a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> is provided, it’s key is the tango class name
+and value is either:</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line"><a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/server.html#tango.server.Device" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a></div>
+<div class="line">two element sequence: <a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/device_class.html#tango.DeviceClass" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceClass</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceImpl</span></code></div>
+<div class="line">three element sequence: <a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/device_class.html#tango.DeviceClass" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceClass</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceImpl</span></code>, tango class name <a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></div>
+</div>
+</div></blockquote>
+</p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – list of command line arguments [default: None, meaning use
+sys.argv]</p></li>
+<li><p><strong>msg_stream</strong> – stream where to put messages [default: sys.stdout]</p></li>
+<li><p><strong>util</strong> (<a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/util.html#tango.Util" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Util</span></code></a>) – PyTango Util object [default: None meaning create a Util
+instance]</p></li>
+<li><p><strong>event_loop</strong> (<em>callable</em>) – event_loop callable</p></li>
+<li><p><strong>pre_init_callback</strong> (<em>callable</em><em> or </em><a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a>) – an optional callback that is executed between the calls
+Util.init and Util.server_init
+The optional <cite>pre_init_callback</cite> can be a callable (without
+arguments) or a tuple where the first element is the callable,
+the second is a list of arguments (optional) and the third is a
+dictionary of keyword arguments (also optional).</p></li>
+<li><p><strong>post_init_callback</strong> (<em>callable</em><em> or </em><a class="reference external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a>) – an optional callback that is executed between the calls
+Util.server_init and Util.server_run
+The optional <cite>post_init_callback</cite> can be a callable (without
+arguments) or a tuple where the first element is the callable,
+the second is a list of arguments (optional) and the third is a
+dictionary of keyword arguments (also optional).</p></li>
+<li><p><strong>raises</strong> (<a class="reference external" href="https://docs.python.org/3.12/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Disable error handling and propagate exceptions from the server</p></li>
+<li><p><strong>err_stream</strong> – stream where to put catched exceptions [default: sys.stderr]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Util singleton object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/util.html#tango.Util" title="(in PyTango v10.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Util</span></code></a></p>
+</dd>
+</dl>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 8.1.2.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 8.1.4: </span>when classes argument is a sequence, the items can also be
+a sequence &lt;TangoClass, TangoClassClass&gt;[, tango class name]</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 9.2.2: </span><cite>raises</cite> argument has been added</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 9.5.0: </span><cite>pre_init_callback</cite> argument has been added</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 10.0.0: </span><cite>err_stream</cite> argument has been added</p>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2026 DESY, Jan Kotanski &lt;jkotan@mail.desy.de&gt;
+
+GNU GENERAL PUBLIC LICENSE, version 3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
