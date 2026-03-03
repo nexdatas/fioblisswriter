@@ -50,7 +50,7 @@ class FIOBlissWriter(Device):
             - maximal  value size of string parameters
             - Type:'int'
         SnapshotBlacklist
-            - a list of snapshot keys for skip
+            - a list of snapshot keys to skip
             - Type:'DevVarStringArray'
         PointSleepTime
             - sleep time between write_point command calls
@@ -91,7 +91,7 @@ class FIOBlissWriter(Device):
 
     SnapshotBlacklist = device_property(
         dtype='DevVarStringArray',
-        doc="a list of snapshot keys for skip"
+        doc="a list of snapshot keys to skip"
     )
 
     PointSleepTime = device_property(
