@@ -107,6 +107,7 @@ class FIOWriterService:
         :type scan:
         """
         while scan.state < ScanState.PREPARED:
+            time.sleep(self.__point_sleep_time)
             scan.update()
         self._streams.info(
             "FIOWriterService::write_scan CREATE FILE: %s" % scan.number)
@@ -140,6 +141,7 @@ class FIOWriterService:
                 break
 
         while scan.state < ScanState.CLOSED:
+            time.sleep(self.__point_sleep_time)
             scan.update()
 
         self._streams.info(
