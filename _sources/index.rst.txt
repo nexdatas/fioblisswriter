@@ -7,6 +7,8 @@
 		       
 .. include:: ../README.rst
 
+	     
+========
 Contents
 ========
 
@@ -17,6 +19,7 @@ Contents
    fioblisswriter
    
 
+==================
 Indices and tables
 ==================
 
