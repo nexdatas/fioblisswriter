@@ -20,7 +20,6 @@
 """ Implementation of FIO Blissdata writer Server """
 
 # package version
-from tango.server import run
 
 from .Release import __version__
 
@@ -33,6 +32,7 @@ def main(args=None, **kwargs):
     :param args: command-line arguments
     :type args: :obj:`list` <:obj:`str`>
     """
+    from tango.server import run
     from .FIOBlissWriter import FIOBlissWriter as FIOBlWriter
 
     return run((FIOBlWriter,), args=args, **kwargs)

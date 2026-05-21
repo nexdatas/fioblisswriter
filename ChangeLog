@@ -1,3 +1,7 @@
+2026-05-20 Jan Kotanski <jankotan@gmail.com>
+	* move write_scan to a separate thread (#34)
+	* tagged as v0.2.0
+
 2026-03-03 Jan Kotanski <jankotan@gmail.com>
 	* add sleep during waiting for scan state(#31)
 	* tagged as v0.1.0
