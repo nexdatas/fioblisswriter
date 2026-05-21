@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <pogoDsl:PogoSystem xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pogoDsl="http://tango.org/pogo/PogoDsl">
   <classes name="FIOBlissWriter" pogoRevision="9.9">
-    <description description="FIO Bliss Writer stores (meta)data from blissdata provided by FIODataWriter" title="FIO Bliss Writer" sourcePath="/home/jkotan/ndts/fioblisswriter" language="PythonHL" filestogenerate="XMI   file,Code files,Protected Regions,html Pages" license="GPL" copyright="" hasMandatoryProperty="false" hasConcreteProperty="true" hasAbstractCommand="false" hasAbstractAttribute="false" descriptionHtmlExists="false">
+    <description description="FIO Bliss Writer stores (meta)data from blissdata provided by FIODataWriter" title="FIO Bliss Writer" sourcePath="/home/jkotan/ndts/nexdatas.fioblisswriter" language="PythonHL" filestogenerate="XMI   file,html Pages" license="GPL" copyright="" hasMandatoryProperty="false" hasConcreteProperty="true" hasAbstractCommand="false" hasAbstractAttribute="false" descriptionHtmlExists="false">
       <inheritances classname="Device_Impl" sourcePath=""/>
       <identification contact="at desy.de - jan.kotanski" author="jan.kotanski" emailDomain="desy.de" classFamily="Acquisition" siteSpecific="" platform="All Platforms" bus="Not Applicable" manufacturer="" reference=""/>
     </description>

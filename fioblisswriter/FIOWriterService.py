@@ -99,7 +99,6 @@ class FIOWriterService:
                     continue
                 scan = self.__datastore.load_scan(key)
                 if self.__session in [scan.session, "__all__"]:
-                    # self.write_scan(scan)
                     self.join_scans()
                     sw = ScanWriter(
                         scan, self._streams, self.__next_scan_timeout,
@@ -114,7 +113,7 @@ class FIOWriterService:
                 with self.__error_lock:
                     self.__errors.append(str(e))
 
-    def joint_scans(self, stop=False):
+    def join_scans(self, stop=False):
         """ join scans  which are stopped
 
         :param stop: stop all scans flag
@@ -125,9 +124,9 @@ class FIOWriterService:
             if stop:
                 sw.running = False
             if not sw.running:
-                if self.error:
+                if sw.error:
                     with self.__error_lock:
-                        self.__errors.extend(self.errors[:])
+                        self.__errors.extend(sw.errors[:])
                 sw.join()
 
     def get_status(self):
@@ -177,14 +176,14 @@ class ScanWriter(threading.Thread):
         :type point_sleep_time: :obj:`float`
         :param server: NXSConfigServer instance
         :type server: :class:`tango.LatestDeviceImpl`
-
         """
+        threading.Thread.__init__(self)
         #: (:class:`Scan`) blissdata scan
         self._scan = scan
         #: (:class:`StreamSet` or :class:`tango.LatestDeviceImpl`) stream set
         self._streams = streams
         #: (:obj:`bool`) service running flag
-        self.running = False
+        self.running = True
         #: (:obj:`bool`) service error flag
         self.error = False
         #: (:obj:`int`) scan timeout in seconds
