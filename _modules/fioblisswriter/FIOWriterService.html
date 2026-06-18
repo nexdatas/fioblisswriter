@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>fioblisswriter.FIOWriterService &#8212; FIOBlissWriter 0.1.0 documentation</title>
+    <title>fioblisswriter.FIOWriterService &#8212; FIOBlissWriter 0.2.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           FIOBlissWriter</a>
-        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>0.2</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -131,6 +131,7 @@
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">import</span> <span class="nn">weakref</span>
+<span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">from</span> <span class="nn">blissdata.redis_engine.store</span> <span class="kn">import</span> <span class="n">DataStore</span>
 <span class="kn">from</span> <span class="nn">blissdata.redis_engine.scan</span> <span class="kn">import</span> <span class="n">ScanState</span>
 <span class="kn">from</span> <span class="nn">blissdata.redis_engine.exceptions</span> <span class="kn">import</span> <span class="n">EndOfStream</span>
@@ -169,6 +170,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span> <span class="o">=</span> <span class="n">StreamSet</span><span class="p">(</span><span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="n">server</span><span class="p">)</span> <span class="k">if</span> <span class="n">server</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
         <span class="c1">#: (:obj:`bool`) service running flag</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#: (:obj:`bool`) service error flag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__error</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1">#: (:obj:`int`) scan timeout in seconds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__next_scan_timeout</span> <span class="o">=</span> <span class="n">next_scan_timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__skip_final_parameters</span> <span class="o">=</span> <span class="n">skip_final_parameters</span>
@@ -180,49 +183,142 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="o">=</span> <span class="n">session</span>
         <span class="c1">#: (:class:`blissdata.redis_engine.store.DataStore`) datastore</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span> <span class="o">=</span> <span class="n">DataStore</span><span class="p">(</span><span class="n">redis_url</span><span class="p">)</span>
+        <span class="c1">#: (:obj:`list`&lt;:obj:`str`&gt;) error list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">#: (:class:`threading.Lock`) threading lock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__error_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="c1">#: (:obj:`dict`&lt;:obj:`str`, :class:`ScanWriter`&gt;) scan writers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sws</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="FIOWriterService.start"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; start writer service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">timestamp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__error</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__errors</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">__running</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">timestamp</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span><span class="o">.</span><span class="n">get_next_scan</span><span class="p">(</span>
-                    <span class="n">since</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__next_scan_timeout</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="n">NoScanAvailable</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="n">scan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span><span class="o">.</span><span class="n">load_scan</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="ow">in</span> <span class="p">[</span><span class="n">scan</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="s2">&quot;__all__&quot;</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write_scan</span><span class="p">(</span><span class="n">scan</span><span class="p">)</span></div>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">timestamp</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span><span class="o">.</span><span class="n">get_next_scan</span><span class="p">(</span>
+                        <span class="n">since</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__next_scan_timeout</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="n">NoScanAvailable</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">scan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span><span class="o">.</span><span class="n">load_scan</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="ow">in</span> <span class="p">[</span><span class="n">scan</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="s2">&quot;__all__&quot;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">join_scans</span><span class="p">()</span>
+                    <span class="n">sw</span> <span class="o">=</span> <span class="n">ScanWriter</span><span class="p">(</span>
+                        <span class="n">scan</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__next_scan_timeout</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__skip_final_parameters</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__max_string_parameter_size</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__snapshot_blacklist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__point_sleep_time</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__sws</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sw</span>
+                    <span class="n">sw</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__error</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__error_lock</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="FIOWriterService.join_scans"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.join_scans">[docs]</a>    <span class="k">def</span> <span class="nf">join_scans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; join scans  which are stopped</span>
+
+<span class="sd">        :param stop: stop all scans flag</span>
+<span class="sd">        :type stop: :obj:`bool`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__sws</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">sw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sws</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stop</span><span class="p">:</span>
+                <span class="n">sw</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sw</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sw</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__error_lock</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sw</span><span class="o">.</span><span class="n">errors</span><span class="p">[:])</span>
+                <span class="n">sw</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="FIOWriterService.get_status"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.get_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; get writer service status</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;is RUNNING&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="k">else</span> <span class="s2">&quot;is STOPPED&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__error</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;is FAILED&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;is RUNNING&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="k">else</span> <span class="s2">&quot;is STOPPED&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;FIOBlissWriter </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">status</span></div>
 
 <div class="viewcode-block" id="FIOWriterService.stop"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; stop writer service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_scans</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FIOWriterService.write_scan"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.write_scan">[docs]</a>    <span class="k">def</span> <span class="nf">write_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scan</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; write scan data</span>
-
-<span class="sd">        :param scan: blissdata scan</span>
-<span class="sd">        :type scan:</span>
+<div class="viewcode-block" id="FIOWriterService.errors"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.FIOWriterService.errors">[docs]</a>    <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; list of errors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">while</span> <span class="n">scan</span><span class="o">.</span><span class="n">state</span> <span class="o">&lt;</span> <span class="n">ScanState</span><span class="o">.</span><span class="n">PREPARED</span><span class="p">:</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__error_lock</span><span class="p">:</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__errors</span><span class="p">[:]</span>
+        <span class="k">return</span> <span class="n">errors</span></div></div>
+
+
+<div class="viewcode-block" id="ScanWriter"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.ScanWriter">[docs]</a><span class="k">class</span> <span class="nc">ScanWriter</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scan</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">next_scan_timeout</span><span class="p">,</span>
+                 <span class="n">skip_final_parameters</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_string_parameter_size</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+                 <span class="n">snapshot_blacklist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">point_sleep_time</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; constructor</span>
+
+<span class="sd">        :param scan: blissdata redis url</span>
+<span class="sd">        :type scan: :class:`Scan`</span>
+<span class="sd">        :param streams: tango streams</span>
+<span class="sd">        :type streams: :class:`StreamSet` or :class:`tango.LatestDeviceImpl`</span>
+<span class="sd">        :param next_scan_timeout: timeout  between the scans in seconds</span>
+<span class="sd">        :type next_scan_timeout: :obj:`int`</span>
+<span class="sd">        :param skip_final_parameters: skip final parameters</span>
+<span class="sd">        :type skip_final_parameters: :obj:`bool`</span>
+<span class="sd">        :param max_string_parameter_size: maximal string parameter size</span>
+<span class="sd">        :type max_string_parameter_size: :obj:`int`</span>
+<span class="sd">        :param snapshotblacklist: snapshot blacklist</span>
+<span class="sd">        :type snapshotblacklist: :obj:`list` &lt;:obj:`str`&gt;</span>
+<span class="sd">        :param point_sleep_time: sleep time between write point calls</span>
+<span class="sd">        :type point_sleep_time: :obj:`float`</span>
+<span class="sd">        :param server: NXSConfigServer instance</span>
+<span class="sd">        :type server: :class:`tango.LatestDeviceImpl`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1">#: (:class:`Scan`) blissdata scan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span> <span class="o">=</span> <span class="n">scan</span>
+        <span class="c1">#: (:class:`StreamSet` or :class:`tango.LatestDeviceImpl`) stream set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span> <span class="o">=</span> <span class="n">streams</span>
+        <span class="c1">#: (:obj:`bool`) service running flag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1">#: (:obj:`bool`) service error flag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#: (:obj:`int`) scan timeout in seconds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__next_scan_timeout</span> <span class="o">=</span> <span class="n">next_scan_timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__skip_final_parameters</span> <span class="o">=</span> <span class="n">skip_final_parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__max_string_parameter_size</span> <span class="o">=</span> <span class="n">max_string_parameter_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__snapshot_blacklist</span> <span class="o">=</span> <span class="n">snapshot_blacklist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__point_sleep_time</span> <span class="o">=</span> <span class="n">point_sleep_time</span>
+
+        <span class="c1">#: (:obj:`list`&lt;:obj:`str`&gt;) error list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">#: (:class:`threading.Lock`) threading lock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ScanWriter.run"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.ScanWriter.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; write scan data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="o">.</span><span class="n">state</span> <span class="o">&lt;</span> <span class="n">ScanState</span><span class="o">.</span><span class="n">PREPARED</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__point_sleep_time</span><span class="p">)</span>
-            <span class="n">scan</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;FIOWriterService::write_scan CREATE FILE: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+            <span class="s2">&quot;FIOWriterService::write_scan CREATE FILE: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
 
         <span class="n">fiofl</span> <span class="o">=</span> <span class="n">create_fio_file</span><span class="p">(</span>
-            <span class="n">scan</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__skip_final_parameters</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__max_string_parameter_size</span><span class="p">,</span>
@@ -233,30 +329,31 @@
             <span class="k">return</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;FIOWriterService::write_scan INIT: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+            <span class="s2">&quot;FIOWriterService::write_scan INIT: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
         <span class="n">fiofl</span><span class="o">.</span><span class="n">write_init_snapshot</span><span class="p">()</span>
 
         <span class="n">fiofl</span><span class="o">.</span><span class="n">prepareChannels</span><span class="p">()</span>
 
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">__running</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">scan</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                     <span class="s2">&quot;FIOWriterService::write_scan SCAN POINT: </span><span class="si">%s</span><span class="s2">&quot;</span>
-                    <span class="o">%</span> <span class="n">scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+                    <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
                 <span class="n">fiofl</span><span class="o">.</span><span class="n">write_scan_points</span><span class="p">()</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__point_sleep_time</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">EndOfStream</span><span class="p">:</span>
                 <span class="k">break</span>
 
-        <span class="k">while</span> <span class="n">scan</span><span class="o">.</span><span class="n">state</span> <span class="o">&lt;</span> <span class="n">ScanState</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="o">.</span><span class="n">state</span> <span class="o">&lt;</span> <span class="n">ScanState</span><span class="o">.</span><span class="n">CLOSED</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__point_sleep_time</span><span class="p">)</span>
-            <span class="n">scan</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_streams</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;FIOWriterService::write_scan FINAL: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+            <span class="s2">&quot;FIOWriterService::write_scan FINAL: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
         <span class="n">fiofl</span><span class="o">.</span><span class="n">write_final_snapshot</span><span class="p">()</span>
-        <span class="n">fiofl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+        <span class="n">fiofl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">False</span></div></div>
 
 
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../fioblisswriter.html#fioblisswriter.FIOWriterService.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
