@@ -114,7 +114,9 @@ SETUPDATA = dict(
         'Programming Language :: Python :: 3.13',
     ],
     install_requires=install_requires,
-    scripts=['FIOBlissWriter'],
+    entry_points={
+        'console_scripts':
+        'FIOBlissWriter = fioblisswriter:main'},
     cmdclass={
         # 'test': TestCommand,
         'build_sphinx': BuildDoc

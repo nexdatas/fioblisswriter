@@ -1,3 +1,7 @@
+2026-07-26 Jan Kotanski <jankotan@gmail.com>
+	* define FIOBlissWriter as entry point (#37)
+	* tagged as v0.3.0
+
 2026-05-20 Jan Kotanski <jankotan@gmail.com>
 	* move write_scan to a separate thread (#34)
 	* tagged as v0.2.0
