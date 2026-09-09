@@ -235,10 +235,18 @@ class ScanWriter(threading.Thread):
                 time.sleep(self.__point_sleep_time)
             except EndOfStream:
                 break
+            except Exception:
+                break
 
+        counter = 0
         while self._scan.state < ScanState.CLOSED and self.running:
+            counter += 1
             time.sleep(self.__point_sleep_time)
-            self._scan.update()
+            self._scan.update(timeout=self.__next_scan_timeout)
+            if counter > 30:
+                self._streams.error(
+                    "FIOWriterService::write_scan scan.info not CLOSED: %s"
+                    % self._scan.number)
 
         self._streams.info(
             "FIOWriterService::write_scan FINAL: %s" % self._scan.number)
