@@ -1,4 +1,8 @@
 2026-07-26 Jan Kotanski <jankotan@gmail.com>
+	* close file when scan.info is not close (#40)
+	* tagged as v0.4.0
+
+2026-07-26 Jan Kotanski <jankotan@gmail.com>
 	* define FIOBlissWriter as entry point (#37)
 	* tagged as v0.3.0
 
