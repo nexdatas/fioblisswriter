@@ -1,0 +1,83 @@
+schema_version: 1
+
+context:
+  version: "2.25.0"
+
+package:
+  name: nxsconfigserver
+  version: ${{ version }}
+
+source:
+  - path: ../../../
+
+build:
+  noarch: python
+  number: 0
+  script:
+    - python -m pip install . -vv --no-deps --no-build-isolation
+    - python -m pytest test
+
+requirements:
+  host:
+    - python
+    - setuptools >=61
+    - pip
+    - wheel
+    - numpy
+    - argcomplete
+    - lxml
+    - pytango
+    - mysql-client
+    - pymysql
+    - pytest
+  run:
+    - python
+    - numpy
+    - argcomplete
+    - lxml
+    - pytango
+    - mysql-client
+    - pymysql
+    - pytest
+
+tests:
+  - python:
+      imports:
+        - nxsconfigserver
+        - nxsconfigserver.ComponentParser
+        - nxsconfigserver.Errors
+        - nxsconfigserver.MYSQLDataBase
+        - nxsconfigserver.Merger
+        - nxsconfigserver.NXSConfigServer
+        - nxsconfigserver.Release
+        - nxsconfigserver.StreamSet
+        - nxsconfigserver.XMLConfigurator
+
+      python_version:
+        - "*"
+  - script:
+      - if: unix
+        then:
+          - test -x "$PREFIX/bin/NXSConfigServer"
+          - NXSConfigServer --help
+    requirements:
+      run:
+        - python
+
+
+about:
+  homepage: https://github.com/nexdatas/nxsconfigserver
+  repository: https://github.com/nexdatas/nxsconfigserver
+  license: GPL-3.0-or-later
+  license_file: COPYRIGHT
+  summary: NeXus Configuration tango server
+  description: |
+    NeXuS Configuration Server is a Tango Server with its
+    implementation based on a MySQL database.
+    It allows to store XML configuration datasources and components.
+    It also gives possibility to select mandatory components
+    and perform the process of component merging.
+
+extra:
+  recipe-maintainers:
+    - jkotan
