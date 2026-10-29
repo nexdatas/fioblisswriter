@@ -1,0 +1,14 @@
+{% extends "!layout.html" %}
+
+{% block navbarextra %}
+  <li class="dropdown">
+    <a role="button" class="dropdown-toggle" data-toggle="dropdown" href="#">
+      Version: {{ current_version }} <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu" role="menu">
+      {% for version, url in doc_versions.items() %}
+        <li><a href="{{ url }}">{{ version }}</a></li>
+      {% endfor %}
+    </ul>
+  </li>
+{% endblock %}
