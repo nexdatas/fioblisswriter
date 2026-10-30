@@ -31,7 +31,7 @@ FIO BlissData Writer Server is a Tango Server  which
 allows to write FIO file from (meta)data stored in BlissData
 by FIODataWriter tango server
 
-Tango Server API: https://nexdatas.github.io/fioblisswriter/doc_html
+Tango Server API: https://nexdatas.github.io/fioblisswriter/stable/doc_html
 
 | Source code: https://github.com/nexdatas/fioblisswriter/
 | Web page: https://nexdatas.github.io/fioblisswriter/
