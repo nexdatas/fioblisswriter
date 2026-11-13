@@ -1,3 +1,7 @@
+2026-XX-YY Jan Kotanski <jankotan@gmail.com>
+	* update URL for HDRI repository (#46)
+	* tagged as v0.5.X
+
 2026-10-29 Jan Kotanski <jankotan@gmail.com>
 	* add pyproject.toml file (#43)
 	* add documentation versions (#43)
