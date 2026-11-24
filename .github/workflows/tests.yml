@@ -50,6 +50,7 @@ jobs:
         run: |
              docker  exec ndts /bin/bash -c "cp doc/index.html doc/_config.yml build"
              docker  exec ndts /bin/bash -c "git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'"
+             docker  exec --user root ndts /bin/bash -c "rm -rf build test fioblisswriter  dist  fioblisswriter.egg-info testresult.txt *.ds.xml tn.png attachment-metadata-12345678.json"
              docker  exec ndts /bin/bash -c "git fetch && git checkout gh-pages && git pull"
              docker  exec ndts /bin/bash -c "mkdir -p ./latest && shopt -u dotglob && rm -rf ./latest/*"
              docker  exec ndts /bin/bash -c "mv -f build/sphinx/html/* ./latest/"
@@ -67,6 +68,7 @@ jobs:
         run: |
              echo Version: ${{ steps.extract_docver.outputs.docver }}
              docker  exec ndts /bin/bash -c "git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'"
+             docker  exec --user root ndts /bin/bash -c "rm -rf build test fioblisswriter  dist  fioblisswriter.egg-info testresult.txt *.ds.xml tn.png attachment-metadata-12345678.json"
              docker  exec ndts /bin/bash -c "git fetch && git checkout gh-pages && git pull"
              docker  exec ndts /bin/bash -c "mkdir -p ./${{ steps.extract_docver.outputs.docver }} && shopt -u dotglob && rm -rf ./${{ steps.extract_docver.outputs.docver }}/* "
              docker  exec ndts /bin/bash -c "mv -f build/sphinx/html/* ./${{ steps.extract_docver.outputs.docver }}"
