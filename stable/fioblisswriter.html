@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>fioblisswriter package &#8212; fioblisswriter 0.5.0 documentation</title>
+    <title>fioblisswriter package &#8212; fioblisswriter 0.6.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css?v=4468db6d" />
-    <script src="_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -36,7 +36,7 @@
         </button>
         <a class="navbar-brand" href="index.html">
           fioblisswriter</a>
-        <span class="navbar-text navbar-version pull-left"><b>0.5</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>0.6</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -247,6 +247,7 @@
       <li><a class="reference external" href="index/../../latest/index.html">v:latest</a></li>
       <li><a class="reference external" href="index/../../stable/index.html">v:stable</a></li>
       
+      <li><a class="reference external" href="index/../../v0.6.0/index.html">v0.6.0</a></li>
       <li><a class="reference external" href="index/../../v0.5.0/index.html">v0.5.0</a></li>
       <li><a class="reference external" href="index/../../v0.4.0/index.html">v0.4.0</a></li>
       
@@ -556,7 +557,7 @@ of the default behaviour does not fullfill the needs.</p>
 <p>Provides the access to a database with NDTS configuration files</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="fioblisswriter.FIOWriterService.FIOWriterService">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fioblisswriter.FIOWriterService.</span></span><span class="sig-name descname"><span class="pre">FIOWriterService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redis_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_scan_timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_final_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_string_parameter_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_blacklist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_sleep_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOWriterService.html#FIOWriterService"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOWriterService.FIOWriterService" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fioblisswriter.FIOWriterService.</span></span><span class="sig-name descname"><span class="pre">FIOWriterService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redis_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_scan_timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_final_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_string_parameter_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_blacklist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_sleep_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fioblisswriter/FIOWriterService.html#FIOWriterService"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fioblisswriter.FIOWriterService.FIOWriterService" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.5/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>constructor</p>
 <dl class="field-list simple">
@@ -570,6 +571,10 @@ of the default behaviour does not fullfill the needs.</p>
 <li><p><strong>snapshotblacklist</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#list" title="(in Python v3.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code></a> &lt;<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>&gt;) – snapshot blacklist</p></li>
 <li><p><strong>point_sleep_time</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#float" title="(in Python v3.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – sleep time between write point calls</p></li>
 <li><p><strong>server</strong> (<a class="reference external" href="https://tango-controls.readthedocs.io/projects/pytango/en/stable/api/server_api/device.html#tango.LatestDeviceImpl" title="(in PyTango v10.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tango.LatestDeviceImpl</span></code></a>) – NXSConfigServer instance</p></li>
+<li><p><strong>datastore</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">blissdata.redis_engine.store.DataStore</span></code>) – blissdata datastore instance. When provided it is
+used instead of creating one from <code class="docutils literal notranslate"><span class="pre">redis_url</span></code>.
+It allows injecting a mocked blissdata datastore
+in tests.</p></li>
 </ul>
 </dd>
 </dl>

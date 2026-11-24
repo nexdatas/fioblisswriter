@@ -4,10 +4,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>fioblisswriter.FIOFile &#8212; fioblisswriter 0.5.0 documentation</title>
+    <title>fioblisswriter.FIOFile &#8212; fioblisswriter 0.6.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css?v=4468db6d" />
-    <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -34,7 +34,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           fioblisswriter</a>
-        <span class="navbar-text navbar-version pull-left"><b>0.5</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>0.6</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -109,6 +109,7 @@
       <li><a class="reference external" href="../../index/../../latest/index.html">v:latest</a></li>
       <li><a class="reference external" href="../../index/../../stable/index.html">v:stable</a></li>
       
+      <li><a class="reference external" href="../../index/../../v0.6.0/index.html">v0.6.0</a></li>
       <li><a class="reference external" href="../../index/../../v0.5.0/index.html">v0.5.0</a></li>
       <li><a class="reference external" href="../../index/../../v0.4.0/index.html">v0.4.0</a></li>
       
@@ -150,8 +151,12 @@
 
 <span class="c1"># from blissdata.redis_engine.store import DataStore</span>
 <span class="c1"># from blissdata.redis_engine.scan import ScanState</span>
-<span class="kn">from</span> <span class="nn">blissdata.redis_engine.exceptions</span> <span class="kn">import</span> <span class="n">EndOfStream</span>
-<span class="c1"># from blissdata.redis_engine.exceptions import NoScanAvailable</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># blissdata &gt;= 2 (blissdata.redis_engine.exceptions is removed in 3)</span>
+    <span class="kn">from</span> <span class="nn">blissdata.exceptions</span> <span class="kn">import</span> <span class="n">EndOfStream</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">blissdata.redis_engine.exceptions</span> <span class="kn">import</span> <span class="n">EndOfStream</span>
+<span class="c1"># from blissdata.exceptions import NoScanAvailable</span>
 
 <span class="kn">from</span> <span class="nn">blissdata.streams.hdf5_fallback</span> <span class="kn">import</span> <span class="n">Hdf5BackedStream</span>
 <span class="kn">from</span> <span class="nn">blissdata.streams.base</span> <span class="kn">import</span> <span class="n">Stream</span>

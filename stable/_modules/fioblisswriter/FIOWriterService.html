@@ -4,10 +4,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>fioblisswriter.FIOWriterService &#8212; fioblisswriter 0.5.0 documentation</title>
+    <title>fioblisswriter.FIOWriterService &#8212; fioblisswriter 0.6.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css?v=4468db6d" />
-    <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -34,7 +34,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           fioblisswriter</a>
-        <span class="navbar-text navbar-version pull-left"><b>0.5</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>0.6</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -109,6 +109,7 @@
       <li><a class="reference external" href="../../index/../../latest/index.html">v:latest</a></li>
       <li><a class="reference external" href="../../index/../../stable/index.html">v:stable</a></li>
       
+      <li><a class="reference external" href="../../index/../../v0.6.0/index.html">v0.6.0</a></li>
       <li><a class="reference external" href="../../index/../../v0.5.0/index.html">v0.5.0</a></li>
       <li><a class="reference external" href="../../index/../../v0.4.0/index.html">v0.4.0</a></li>
       
@@ -147,8 +148,13 @@
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">from</span> <span class="nn">blissdata.redis_engine.store</span> <span class="kn">import</span> <span class="n">DataStore</span>
 <span class="kn">from</span> <span class="nn">blissdata.redis_engine.scan</span> <span class="kn">import</span> <span class="n">ScanState</span>
-<span class="kn">from</span> <span class="nn">blissdata.redis_engine.exceptions</span> <span class="kn">import</span> <span class="n">EndOfStream</span>
-<span class="kn">from</span> <span class="nn">blissdata.redis_engine.exceptions</span> <span class="kn">import</span> <span class="n">NoScanAvailable</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># blissdata &gt;= 2 (blissdata.redis_engine.exceptions is removed in 3)</span>
+    <span class="kn">from</span> <span class="nn">blissdata.exceptions</span> <span class="kn">import</span> <span class="n">EndOfStream</span>
+    <span class="kn">from</span> <span class="nn">blissdata.exceptions</span> <span class="kn">import</span> <span class="n">NoScanAvailable</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">blissdata.redis_engine.exceptions</span> <span class="kn">import</span> <span class="n">EndOfStream</span>
+    <span class="kn">from</span> <span class="nn">blissdata.redis_engine.exceptions</span> <span class="kn">import</span> <span class="n">NoScanAvailable</span>
 
 <span class="kn">from</span> <span class="nn">.FIOFile</span> <span class="kn">import</span> <span class="n">create_fio_file</span>
 <span class="kn">from</span> <span class="nn">.StreamSet</span> <span class="kn">import</span> <span class="n">StreamSet</span>
@@ -160,7 +166,8 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redis_url</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">next_scan_timeout</span><span class="p">,</span>
                  <span class="n">skip_final_parameters</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_string_parameter_size</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
-                 <span class="n">snapshot_blacklist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">point_sleep_time</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">snapshot_blacklist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">point_sleep_time</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">datastore</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; constructor</span>
 
 <span class="sd">        :param redis_url: blissdata redis url</span>
@@ -179,6 +186,11 @@
 <span class="sd">        :type point_sleep_time: :obj:`float`</span>
 <span class="sd">        :param server: NXSConfigServer instance</span>
 <span class="sd">        :type server: :class:`tango.LatestDeviceImpl`</span>
+<span class="sd">        :param datastore: blissdata datastore instance. When provided it is</span>
+<span class="sd">                          used instead of creating one from ``redis_url``.</span>
+<span class="sd">                          It allows injecting a mocked blissdata datastore</span>
+<span class="sd">                          in tests.</span>
+<span class="sd">        :type datastore: :class:`blissdata.redis_engine.store.DataStore`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1">#: (:class:`StreamSet` or :class:`tango.LatestDeviceImpl`) stream set</span>
@@ -196,8 +208,13 @@
 
         <span class="c1">#: (:obj:`str`) session name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="o">=</span> <span class="n">session</span>
-        <span class="c1">#: (:class:`blissdata.redis_engine.store.DataStore`) datastore</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span> <span class="o">=</span> <span class="n">DataStore</span><span class="p">(</span><span class="n">redis_url</span><span class="p">)</span>
+        <span class="c1">#: (:obj:`str`) blissdata redis url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__redis_url</span> <span class="o">=</span> <span class="n">redis_url</span>
+        <span class="c1">#: (:class:`blissdata.redis_engine.store.DataStore`) datastore.</span>
+        <span class="c1">#  When not injected it is created lazily on start() so that the</span>
+        <span class="c1">#  service (and the Tango device embedding it) can be built without</span>
+        <span class="c1">#  a live redis connection.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span> <span class="o">=</span> <span class="n">datastore</span>
         <span class="c1">#: (:obj:`list`&lt;:obj:`str`&gt;) error list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__errors</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1">#: (:class:`threading.Lock`) threading lock</span>
@@ -214,6 +231,16 @@
         <span class="n">timestamp</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__error</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__errors</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__datastore</span> <span class="o">=</span> <span class="n">DataStore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__redis_url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__error</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__error_lock</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span>
 
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">__running</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -277,7 +304,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; stop writer service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__running</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">joint_scans</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">join_scans</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FIOWriterService.errors">
