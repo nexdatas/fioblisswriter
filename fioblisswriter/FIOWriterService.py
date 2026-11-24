@@ -25,8 +25,13 @@ import weakref
 import threading
 from blissdata.redis_engine.store import DataStore
 from blissdata.redis_engine.scan import ScanState
-from blissdata.redis_engine.exceptions import EndOfStream
-from blissdata.redis_engine.exceptions import NoScanAvailable
+try:
+    # blissdata >= 2 (blissdata.redis_engine.exceptions is removed in 3)
+    from blissdata.exceptions import EndOfStream
+    from blissdata.exceptions import NoScanAvailable
+except ImportError:
+    from blissdata.redis_engine.exceptions import EndOfStream
+    from blissdata.redis_engine.exceptions import NoScanAvailable
 
 from .FIOFile import create_fio_file
 from .StreamSet import StreamSet

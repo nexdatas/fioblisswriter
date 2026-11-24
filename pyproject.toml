@@ -2,6 +2,12 @@
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.pytest.ini_options]
+# The system-wide pyicat-plus pytest plugin hard-imports icat_plus_client,
+# which is not installed, so it crashes pytest at startup. Disable it so that
+# a bare `python3 -m pytest` works.
+addopts = "-p no:pyicat_plus"
+
 # [tool.ruff.lint]
 # # Enable isort (I) rules, in addition to the defaults.
 # select = ["E4", "E7", "E9", "F", "I"]
