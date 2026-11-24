@@ -25,8 +25,13 @@ import weakref
 import threading
 from blissdata.redis_engine.store import DataStore
 from blissdata.redis_engine.scan import ScanState
-from blissdata.redis_engine.exceptions import EndOfStream
-from blissdata.redis_engine.exceptions import NoScanAvailable
+try:
+    # blissdata >= 2 (blissdata.redis_engine.exceptions is removed in 3)
+    from blissdata.exceptions import EndOfStream
+    from blissdata.exceptions import NoScanAvailable
+except ImportError:
+    from blissdata.redis_engine.exceptions import EndOfStream
+    from blissdata.redis_engine.exceptions import NoScanAvailable
 
 from .FIOFile import create_fio_file
 from .StreamSet import StreamSet
@@ -36,7 +41,8 @@ class FIOWriterService:
 
     def __init__(self, redis_url, session, next_scan_timeout,
                  skip_final_parameters=False, max_string_parameter_size=300,
-                 snapshot_blacklist=None, point_sleep_time=0.01, server=None):
+                 snapshot_blacklist=None, point_sleep_time=0.01, server=None,
+                 datastore=None):
         """ constructor
 
         :param redis_url: blissdata redis url
@@ -55,6 +61,11 @@ class FIOWriterService:
         :type point_sleep_time: :obj:`float`
         :param server: NXSConfigServer instance
         :type server: :class:`tango.LatestDeviceImpl`
+        :param datastore: blissdata datastore instance. When provided it is
+                          used instead of creating one from ``redis_url``.
+                          It allows injecting a mocked blissdata datastore
+                          in tests.
+        :type datastore: :class:`blissdata.redis_engine.store.DataStore`
 
         """
         #: (:class:`StreamSet` or :class:`tango.LatestDeviceImpl`) stream set
@@ -72,8 +83,13 @@ class FIOWriterService:
 
         #: (:obj:`str`) session name
         self.__session = session
-        #: (:class:`blissdata.redis_engine.store.DataStore`) datastore
-        self.__datastore = DataStore(redis_url)
+        #: (:obj:`str`) blissdata redis url
+        self.__redis_url = redis_url
+        #: (:class:`blissdata.redis_engine.store.DataStore`) datastore.
+        #  When not injected it is created lazily on start() so that the
+        #  service (and the Tango device embedding it) can be built without
+        #  a live redis connection.
+        self.__datastore = datastore
         #: (:obj:`list`<:obj:`str`>) error list
         self.__errors = []
         #: (:class:`threading.Lock`) threading lock
@@ -88,6 +104,16 @@ class FIOWriterService:
         timestamp = None
         self.__error = False
         self.__errors = []
+
+        try:
+            if self.__datastore is None:
+                self.__datastore = DataStore(self.__redis_url)
+        except Exception as e:
+            self.__error = True
+            with self.__error_lock:
+                self.__errors.append(str(e))
+            self.__running = False
+            return
 
         while self.__running:
             try:
@@ -142,7 +168,7 @@ class FIOWriterService:
         """ stop writer service
         """
         self.__running = False
-        self.joint_scans(stop=True)
+        self.join_scans(stop=True)
 
     def errors(self):
         """ list of errors

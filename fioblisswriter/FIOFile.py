@@ -28,8 +28,12 @@ import numpy as np
 
 # from blissdata.redis_engine.store import DataStore
 # from blissdata.redis_engine.scan import ScanState
-from blissdata.redis_engine.exceptions import EndOfStream
-# from blissdata.redis_engine.exceptions import NoScanAvailable
+try:
+    # blissdata >= 2 (blissdata.redis_engine.exceptions is removed in 3)
+    from blissdata.exceptions import EndOfStream
+except ImportError:
+    from blissdata.redis_engine.exceptions import EndOfStream
+# from blissdata.exceptions import NoScanAvailable
 
 from blissdata.streams.hdf5_fallback import Hdf5BackedStream
 from blissdata.streams.base import Stream

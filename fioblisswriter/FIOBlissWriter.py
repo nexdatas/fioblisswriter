@@ -137,7 +137,7 @@ class FIOBlissWriter(Device):
     # ------------------
 
     def read_Errors(self):
-        return self.nxs_writer_service.errors()
+        return self.fio_writer_service.errors()
 
     # --------
     # Commands
