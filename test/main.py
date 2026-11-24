@@ -24,6 +24,8 @@ import sys
 import unittest
 
 import fioblisswriter_test
+import fiofile_test
+import fiowriterservice_test
 
 try:
     try:
@@ -36,6 +38,10 @@ try:
 except ImportError as e:
     PYTANGO_AVAILABLE = False
     print("tango is not available: %s" % e)
+
+
+if PYTANGO_AVAILABLE:
+    import FIOBlissWriter_test
 
 
 try:
@@ -71,6 +77,22 @@ def main():
           unittest.defaultTestLoader.loadTestsFromModule(
               fioblisswriter_test)
     )
+
+    suite.addTests(
+          unittest.defaultTestLoader.loadTestsFromModule(
+              fiofile_test)
+    )
+
+    suite.addTests(
+          unittest.defaultTestLoader.loadTestsFromModule(
+              fiowriterservice_test)
+    )
+
+    if PYTANGO_AVAILABLE:
+        suite.addTests(
+              unittest.defaultTestLoader.loadTestsFromModule(
+                  FIOBlissWriter_test)
+        )
 
     # test runner
     runner = unittest.TextTestRunner()
