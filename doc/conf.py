@@ -259,8 +259,9 @@ if os.getenv("FIOCONFIGSERVER_HIDE_VERSIONS") != 'TRUE':
     html_sidebars['**'].append('versions.html')
 
 html_context = {
-    "current_version": "v0.5.0",
+    "current_version": "v0.6.0",
     "docs_versions": [
+        "v0.6.0",
         "v0.5.0",
         "v0.4.0",
     ]
